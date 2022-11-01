@@ -5,7 +5,9 @@ import sys
 
 # Essenital
 import cv2 as cv
+import mediapipe as mp
 import numpy as np
+from mediapipe.framework.formats import landmark_pb2
 # Helpers
 from scipy.interpolate import splprep, splev
 
@@ -26,8 +28,50 @@ if not capture.isOpened():
 
 subtraction = cv.createBackgroundSubtractorMOG2()
 
-
 # TODO: Classify all similar functions
+
+mpPose = mp.solutions.pose
+pose = mpPose.Pose()
+mpDraw = mp.solutions.drawing_utils
+
+
+def pose_estimation(frame):
+    # inspired by https://www.analyticsvidhya.com/blog/2021/05/pose-estimation-using-opencv/
+    res = frame.copy()
+    results = pose.process(frame)
+
+    # Get the subset of landmarks that I need for the problem i.e. just the arms
+    landmark_subset = landmark_pb2.NormalizedLandmarkList(
+        landmark=[
+            results.pose_landmarks.landmark[11],
+            results.pose_landmarks.landmark[12],
+            results.pose_landmarks.landmark[13],
+            results.pose_landmarks.landmark[14],
+            results.pose_landmarks.landmark[15],
+            results.pose_landmarks.landmark[13],
+            results.pose_landmarks.landmark[17],
+            results.pose_landmarks.landmark[18],
+            results.pose_landmarks.landmark[19],
+            results.pose_landmarks.landmark[20],
+
+        ]
+    )
+
+    # draw landmarks
+    mpDraw.draw_landmarks(
+        image=res,
+        landmark_list=landmark_subset)
+    # results = results[15:20]
+    # print(results.pose_landmarks)
+    # if results.pose_landmarks:
+    #     mpDraw.draw_landmarks(res, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
+    # for id, lm in enumerate(results.pose_landmarks.landmark):
+    #     h, w, c = res.shape
+    # print(id, lm)
+    # cx, cy = int(lm.x * w), int(lm.y * h)
+    # cv.circle(res, (cx, cy), 5, (255, 0, 0), cv.FILLED)
+    return res
+
 
 def find_corners(grayframe):
     """
@@ -181,9 +225,11 @@ def main_loop():
         # cv.imshow("Foreground frame", of_frame)
 
         # of_frame = optical_flow(frame, True)
-        of_frame = optical_flow(temp_frame, True)
-
-        cv.imshow('Optical Flow Frame', of_frame)
+        # of_frame = optical_flow(temp_frame, True)
+        #
+        # cv.imshow('Optical Flow Frame', of_frame)
+        pose = pose_estimation(temp_frame)
+        cv.imshow('Pose estimation', pose)
         cv.imshow('Frame', frame)
 
         print(capture.get(1))
