@@ -34,8 +34,110 @@ mpPose = mp.solutions.pose
 pose = mpPose.Pose()
 mpDraw = mp.solutions.drawing_utils
 
+# initialize the HOG descriptor/person detector
+hog = cv.HOGDescriptor()
+hog.setSVMDetector(cv.HOGDescriptor_getDefaultPeopleDetector())
+
+
+def detect_person(frame):
+    """
+    method to detect a person via contours https://learnopencv.com/contour-detection-using-opencv-python-c/#:~:text=to%20add%20content.-,Contour%20Detection%20using%20OpenCV%20(Python%2FC%2B%2B),image%20segmentation%2C%20detection%20and%20recognition.
+    :param frame:
+    :return: result
+    """
+    res = frame.copy()
+    # res = cv.resize(res, (640, 480))
+    gray = cv.cvtColor(res, cv.COLOR_BGR2GRAY)
+    cv.imshow("Gray", gray)
+
+    ret, thresh = cv.threshold(gray, 185, 255, cv.THRESH_BINARY)
+    thresh = cv.medianBlur(thresh, 9)
+    kernel = cv.getStructuringElement(cv.MORPH_RECT, (5, 5))
+    thresh = cv.dilate(thresh, kernel, iterations=1)
+    # cv.imshow("bin", thresh)
+
+    thresh = thresh / 255
+    thresh = thresh.astype(np.uint8)
+    # print(np.amax(thresh), np.amin(thresh), thresh.dtype)
+    cv.imshow("Temp", thresh * 255)
+
+    coords = np.where(thresh == 1)
+    coords = np.array([coords[0], coords[1]])
+    coords = coords.T
+
+    xs_average = int(np.sum(coords[:, 0]) / len(coords))
+    ys_average = int(np.sum(coords[:, 1]) / len(coords))
+    #
+    # print(xs_average)
+    # print(ys_average)
+    cv.circle(res, (xs_average, ys_average), 1, (0, 255, 255), 5)
+    cv.imshow("Shit", res)
+
+    # TODO fix
+    contours, hieracrchy = cv.findContours(image=thresh, mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE)
+    cv.drawContours(thresh, contours, -1, (0, 255, 0), 2, cv.LINE_AA)
+
+    contours, hierarchy = cv.findContours(image=thresh, mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE)
+
+    largest = []
+    for contour in contours:
+        if len(contour) > len(largest):
+            largest = contour
+    image_copy = frame.copy()
+    cv.drawContours(image=image_copy, contours=largest, contourIdx=-1, color=(0, 255, 0), thickness=2,
+                    lineType=cv.LINE_AA)
+    return largest
+
+
+def centre_of_mass(frame):
+    """
+    Function to detect the centre of mass of the player
+    Reference - https://stackoverflow.com/questions/49582008/center-of-mass-in-contour-python-opencv
+    :param frame:
+    :return: centre of mass as a circle
+    """
+    com = {
+        "c_x": 0,
+        "c_y": 0
+    }
+    res = frame.copy()
+    person_cont = detect_person(res)
+
+    res_copy = res.copy()
+    cv.drawContours(image=res_copy, contours=person_cont, contourIdx=-1, color=(0, 255, 0), thickness=2,
+                    lineType=cv.LINE_AA)
+    cv.imshow("Player", res_copy)
+
+    x = 0
+    y = 0
+    for kp in person_cont:
+        x = x + kp[0][0]
+        y = y + kp[0][1]
+
+    com["c_x"] = x / len(person_cont)
+    com["c_y"] = y / len(person_cont)
+
+    # Retruning it seems to be offset but not sure. Maybe this mehtod doesnt woirk
+
+    return com
+
 
 def pose_estimation(frame):
+    res = frame.copy()
+    results = pose.process(frame)
+
+    # print(results.pose_landmarks)
+    if results.pose_landmarks:
+        mpDraw.draw_landmarks(res, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
+    for id, lm in enumerate(results.pose_landmarks.landmark):
+        h, w, c = res.shape
+    # print(id, lm)
+    cx, cy = int(lm.x * w), int(lm.y * h)
+    cv.circle(res, (cx, cy), 5, (255, 0, 0), cv.FILLED)
+    return res
+
+
+def hand_estimation(frame):
     # inspired by https://www.analyticsvidhya.com/blog/2021/05/pose-estimation-using-opencv/
     res = frame.copy()
     results = pose.process(frame)
@@ -61,15 +163,6 @@ def pose_estimation(frame):
     mpDraw.draw_landmarks(
         image=res,
         landmark_list=landmark_subset)
-    # results = results[15:20]
-    # print(results.pose_landmarks)
-    # if results.pose_landmarks:
-    #     mpDraw.draw_landmarks(res, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
-    # for id, lm in enumerate(results.pose_landmarks.landmark):
-    #     h, w, c = res.shape
-    # print(id, lm)
-    # cx, cy = int(lm.x * w), int(lm.y * h)
-    # cv.circle(res, (cx, cy), 5, (255, 0, 0), cv.FILLED)
     return res
 
 
@@ -228,14 +321,22 @@ def main_loop():
         # of_frame = optical_flow(temp_frame, True)
         #
         # cv.imshow('Optical Flow Frame', of_frame)
-        pose = pose_estimation(temp_frame)
-        cv.imshow('Pose estimation', pose)
+        hands = hand_estimation(temp_frame)
+        cv.imshow('Hand estimation', hands)
+
+        # pose = pose_estimation(temp_frame)
+        # cv.imshow("Pose Estimation", pose)
+
+        com_loc = centre_of_mass(temp_frame)
+        player_centre = cv.circle(frame, (np.uint8(np.ceil(com_loc["c_x"])), np.uint8(np.ceil(com_loc["c_y"]))), 1,
+                                  (0, 255, 255), 5)
+
         cv.imshow('Frame', frame)
 
-        print(capture.get(1))
-        if (capture.get(1) == 50.0) or (capture.get(1) == 75.0) or (capture.get(1) == 80.0):
-            print("yep")
-            cv.waitKey(500000)
+        # print(capture.get(1))
+        # if (capture.get(1) == 50.0) or (capture.get(1) == 75.0) or (capture.get(1) == 80.0):
+        #     print("yep")
+        #     cv.waitKey(500000)
 
         keyboard = cv.waitKey(30)
         if keyboard == 'q' or keyboard == 27:
