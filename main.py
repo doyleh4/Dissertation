@@ -127,20 +127,6 @@
 #     return com
 #
 #
-# def pose_estimation(frame):
-#     res = frame.copy()
-#     results = pose.process(frame)
-#
-#     # print(results.pose_landmarks)
-#     if results.pose_landmarks:
-#         mpDraw.draw_landmarks(res, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
-#     for id, lm in enumerate(results.pose_landmarks.landmark):
-#         h, w, c = res.shape
-#     # print(id, lm)
-#     cx, cy = int(lm.x * w), int(lm.y * h)
-#     cv.circle(res, (cx, cy), 5, (255, 0, 0), cv.FILLED)
-#     return res
-#
 #
 # def hand_estimation(frame):
 #     # inspired by https://www.analyticsvidhya.com/blog/2021/05/pose-estimation-using-opencv/
@@ -363,6 +349,10 @@ import sys
 
 import cv2 as cv
 
+# Custom class imports
+from helper_funcs.graphing import GraphHelper as Graph
+from helper_funcs.pose_estimation import PoseEstimation as Pose
+
 # Retrieve input file from run-time ram
 parser = argparse.ArgumentParser(description='This program shows how to use background subtraction methods provided by \
                                               OpenCV. You can process both videos and images.')
@@ -373,11 +363,17 @@ args = parser.parse_args()
 print("Retrieiving video from files")
 
 capture = cv.VideoCapture(args.input)
-compare_capture = cv.VideoCapture("./videos/tiger.mp4")
+# compare_capture = cv.VideoCapture("./videos/tiger.mp4")
 
 if not capture.isOpened():
     print("Input file failed to open, there is a file path error.")
     sys.exit(0)
+
+# Pose estimator
+pose = Pose()
+
+# Drawing functionality
+draw = Graph()
 
 
 def main_loop():
@@ -387,12 +383,16 @@ def main_loop():
         frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
         frame = cv.rotate(frame, cv.ROTATE_180)
 
-        # Parse video to drop irrelevant frames
+        # Get pose estimation for frame
+        res = pose.predict_pose(frame)
+        draw.draw_pose(frame, res)
 
-        # Classify swing stage (downswing, followthrough etc...)
+        # TODO: Parse video to drop irrelevant frames
+
+        # TODO: Classify swing stage (downswing, followthrough etc...)
 
         cv.imshow('Frame', frame)
-        keyboard = cv.waitKey(0)
+        keyboard = cv.waitKey(5)
         if keyboard == 113:  # 113 is "q"
             sys.exit(0)
 
@@ -405,3 +405,4 @@ def main_loop():
 if __name__ == "__main__":
     # play the video, main loop
     main_loop()
+    # TODO: Graph tracking at end of video
