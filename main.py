@@ -384,8 +384,14 @@ def main_loop():
         frame = cv.rotate(frame, cv.ROTATE_180)
 
         # Get pose estimation for frame
-        res = pose.predict_pose(frame)
-        draw.draw_pose(frame, res)
+        # whole_pose = pose.predict_pose(frame)
+        # draw.draw_pose(frame, whole_pose)
+
+        # Get relevant pose features
+        results = pose.predict_relevant(frame)
+        draw.draw_pose_results(frame, results)
+
+        draw.draw_expanded(frame, results)
 
         # TODO: Parse video to drop irrelevant frames
 
