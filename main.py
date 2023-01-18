@@ -349,23 +349,26 @@ import sys
 
 import cv2 as cv
 
+from helper_funcs.data_record import DataRecord as Data
 # Custom class imports
 from helper_funcs.graphing import GraphHelper as Graph
 from helper_funcs.pose_estimation import PoseEstimation as Pose
 
 # Retrieve input file from run-time ram
-parser = argparse.ArgumentParser(description='This program shows how to use background subtraction methods provided by \
-                                              OpenCV. You can process both videos and images.')
-parser.add_argument('--input', type=str, help='Path to a video or a sequence of image.',
+parser = argparse.ArgumentParser(description='This program shows how to improve a golf swing using OpenCV methods.')
+parser.add_argument('--input', type=str, help='Path to a video.',
                     default="./videos/samples/sample0.mov")
+parser.add_argument('--input1', type=str, help='Path to a video.',
+                    default="./videos/samples/sample7.mov")
 args = parser.parse_args()
 
 print("Retrieiving video from files")
 
-capture = cv.VideoCapture(args.input)
+frontal_view = cv.VideoCapture(args.input)
+dtl_view = cv.VideoCapture(args.input1)
 # compare_capture = cv.VideoCapture("./videos/tiger.mp4")
 
-if not capture.isOpened():
+if not frontal_view.isOpened() or not dtl_view.isOpened():
     print("Input file failed to open, there is a file path error.")
     sys.exit(0)
 
@@ -375,10 +378,19 @@ pose = Pose()
 # Drawing functionality
 draw = Graph()
 
+# Data recorded
+data = Data()
+
 
 def main_loop():
-    while capture.isOpened():
-        ret, frame = capture.read()
+    # Process front view
+    while frontal_view.isOpened():
+        ret, frame = frontal_view.read()
+
+        # if frame is read correctly ret is True
+        if not ret:
+            print("Can't receive frame (stream end?). Exiting ...")
+            break
 
         frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
         frame = cv.rotate(frame, cv.ROTATE_180)
@@ -393,6 +405,8 @@ def main_loop():
 
         draw.draw_expanded(frame, results)
 
+        data.store_frame_data(results)
+
         # TODO: Parse video to drop irrelevant frames
 
         # TODO: Classify swing stage (downswing, followthrough etc...)
@@ -402,13 +416,38 @@ def main_loop():
         if keyboard == 113:  # 113 is "q"
             sys.exit(0)
 
+    # Process other Down the Line view
+    while dtl_view.isOpened():
+        ret, frame = dtl_view.read()
+
         # if frame is read correctly ret is True
         if not ret:
             print("Can't receive frame (stream end?). Exiting ...")
             break
+
+        frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
+        frame = cv.rotate(frame, cv.ROTATE_180)
+
+        # Get relevant pose features
+        results = pose.predict_dtl_pose(frame)
+        draw.draw_pose_results(frame, results)
+
+        draw.draw_dtl_checks(frame, results)
+
+        # data.store_frame_data(results)
+
+        # TODO: Parse video to drop irrelevant frames
+
+        # TODO: Classify swing stage (downswing, followthrough etc...)
+
+        cv.imshow('Frame', frame)
+        keyboard = cv.waitKey(5)
+        if keyboard == 113:  # 113 is "q"
+            sys.exit(0)
 
 
 if __name__ == "__main__":
     # play the video, main loop
     main_loop()
     # TODO: Graph tracking at end of video
+    draw.show_graphs(data)

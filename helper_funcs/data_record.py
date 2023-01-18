@@ -1,0 +1,27 @@
+class DataRecord:
+    """
+        Class to provide data storage functionality
+    """
+
+    def __init__(self):
+        self.data = {
+            "lw": [],
+            "shoulder_slope": [],
+            "lead_leg_to_shoulder": []
+        }
+
+    def store_frame_data(self, pose_data):
+        """
+        Function to store all the recorded data into persistent storage.
+        Only works with specific data (not entire pose set)
+        :param pose_data:
+        :return:
+        """
+        """
+        Indexes - 0: left wrist, 1: right wrist, 2: left elbow, 3: right elbow, 4: left shoulder, 5: right shoulder,
+        6: left hip, 7: right hip, 8: left knee, 9: right knee, ,10: left ankle, 11: right ankle, 12: right heel,
+        13: right foot index/toe, 14: left ear, 15: nose
+        """
+        self.data["lw"].append(pose_data[0])
+        self.data["shoulder_slope"].append((pose_data[5][1] - pose_data[4][1]) / (pose_data[5][0] - pose_data[4][0]))
+        self.data["lead_leg_to_shoulder"].append(pose_data[11][0] - pose_data[5][0])

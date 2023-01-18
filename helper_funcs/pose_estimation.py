@@ -62,7 +62,34 @@ class PoseEstimation:
             results.pose_landmarks.landmark[28],  # 11: right ankle
             results.pose_landmarks.landmark[30],  # 12: right heel
             results.pose_landmarks.landmark[32],  # 13: right foot index/toe
-            results.pose_landmarks.landmark[7]  # 14: left ear
+            results.pose_landmarks.landmark[7],  # 14: left ear
+            results.pose_landmarks.landmark[0]  # 15: nose
+        ]
+
+        for landmark in landmarks_subset:
+            # for each landmark get its normalised x, y coordinate
+            normalised = normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+            points.append(np.array(normalised))
+
+        return points
+
+    def predict_dtl_pose(self, frame):
+        res = frame.copy()
+        points = list()
+        results = self.pose.process(frame)
+
+        # Get the subset of landmarks that we need for the problem
+        landmarks_subset = [
+            results.pose_landmarks.landmark[24],  # 0: right hip
+            results.pose_landmarks.landmark[26],  # 1: right knee
+            results.pose_landmarks.landmark[28],  # 2: right ankle
+            results.pose_landmarks.landmark[12],  # 3: right shoulder
+            results.pose_landmarks.landmark[14],  # 4: right elbow
+            results.pose_landmarks.landmark[16],  # 5: right wrist
+            results.pose_landmarks.landmark[11],  # 6: left shoulder
+            results.pose_landmarks.landmark[23],  # 7: left hip
+            results.pose_landmarks.landmark[30],  # 8: right heel
+            results.pose_landmarks.landmark[32],  # 9: right foot index/toe
         ]
 
         for landmark in landmarks_subset:
