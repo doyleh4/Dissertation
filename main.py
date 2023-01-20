@@ -349,8 +349,8 @@ import sys
 
 import cv2 as cv
 
-from helper_funcs.data_record import DataRecord as Data
 # Custom class imports
+from helper_funcs.data_record import DataRecord as Data
 from helper_funcs.graphing import GraphHelper as Graph
 from helper_funcs.pose_estimation import PoseEstimation as Pose
 
