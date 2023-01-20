@@ -7,6 +7,15 @@ def normalise(x, y, width, height):
     return [int(x * width), int(y * height)]
 
 
+def normalise_all(landmarks_subset, frame):
+    points = []
+    for landmark in landmarks_subset:
+        # for each landmark get its normalised x, y coordinate
+        normalised = normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+        points.append(np.array(normalised))
+    return points
+
+
 class PoseEstimation:
     """
         Class to do pose estimation using MediaPipe
@@ -16,24 +25,20 @@ class PoseEstimation:
         self.mpPose = mp.solutions.pose
         self.pose = self.mpPose.Pose()
 
+    def init_vars(self, frame):
+        return frame.copy(), list(), self.pose.process(frame)
+
     def predict_pose(self, frame):
         """
             Will return a list of identified landmarks as co-ordinates
             :param frame:
             :return points:
         """
-        res = frame.copy()
-        points = list()
-        results = self.pose.process(frame)
-        # landmarks = landmark_pb2.NormalizedLandmarkList(landmark=results.pose_landmarks.landmark)
+        res, points, results = self.init_vars(frame)
 
-        for landmark in results.pose_landmarks.landmark:
-            # for each landmark get its normalised x, y coordinate
-            # normed = landmark_pb2.NormalizedLandmark(landmark)
-            normalised = normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
-            points.append(np.array(normalised))
+        landmarks = results.pose_landmarks
 
-        return points
+        return normalise_all(landmarks, frame)
 
     # TODO: Instead of single pose landmarks, return the landmarks (that matter) as a line of acceptance
     def predict_relevant(self, frame):
@@ -42,9 +47,7 @@ class PoseEstimation:
             :param frame:
             :return points:
         """
-        res = frame.copy()
-        points = list()
-        results = self.pose.process(frame)
+        res, points, results = self.init_vars(frame)
 
         # Get the subset of landmarks that we need for the problem
         landmarks_subset = [
@@ -66,17 +69,10 @@ class PoseEstimation:
             results.pose_landmarks.landmark[0]  # 15: nose
         ]
 
-        for landmark in landmarks_subset:
-            # for each landmark get its normalised x, y coordinate
-            normalised = normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
-            points.append(np.array(normalised))
-
-        return points
+        return normalise_all(landmarks_subset, frame)
 
     def predict_dtl_pose(self, frame):
-        res = frame.copy()
-        points = list()
-        results = self.pose.process(frame)
+        res, points, results = self.init_vars(frame)
 
         # Get the subset of landmarks that we need for the problem
         landmarks_subset = [
@@ -92,11 +88,6 @@ class PoseEstimation:
             results.pose_landmarks.landmark[32],  # 9: right foot index/toe
         ]
 
-        for landmark in landmarks_subset:
-            # for each landmark get its normalised x, y coordinate
-            normalised = normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
-            points.append(np.array(normalised))
-
-        return points
+        return normalise_all(landmarks_subset, frame)
 
     # TODO: Get mask of person segmentation and return that

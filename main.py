@@ -384,7 +384,10 @@ data = Data()
 
 def main_loop():
     # Process front view
+    slomo = False
     while frontal_view.isOpened():
+        if slomo:
+            cv.waitKey(200)
         ret, frame = frontal_view.read()
 
         # if frame is read correctly ret is True
@@ -412,12 +415,18 @@ def main_loop():
         # TODO: Classify swing stage (downswing, followthrough etc...)
 
         cv.imshow('Frame', frame)
-        keyboard = cv.waitKey(5)
+        keyboard = cv.waitKey(1)
+
+        if keyboard == 115:  # 115 is "s"
+            slomo = not slomo
+            print(slomo)
         if keyboard == 113:  # 113 is "q"
             sys.exit(0)
 
     # Process other Down the Line view
     while dtl_view.isOpened():
+        if slomo:
+            cv.waitKey(200)
         ret, frame = dtl_view.read()
 
         # if frame is read correctly ret is True
@@ -441,7 +450,11 @@ def main_loop():
         # TODO: Classify swing stage (downswing, followthrough etc...)
 
         cv.imshow('Frame', frame)
-        keyboard = cv.waitKey(5)
+        keyboard = cv.waitKey(1)
+        if keyboard == 115:  # 115 is "s"
+            slomo = not slomo
+            print(slomo)
+
         if keyboard == 113:  # 113 is "q"
             sys.exit(0)
 
