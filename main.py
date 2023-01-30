@@ -381,6 +381,8 @@ draw = Graph()
 # Data recorded
 data = Data()
 
+temp = 0
+
 
 def main_loop():
     # Process front view
@@ -396,11 +398,19 @@ def main_loop():
             break
 
         frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
+        temp = frame.shape[1]
         frame = cv.rotate(frame, cv.ROTATE_180)
 
         # Get pose estimation for frame
         # whole_pose = pose.predict_pose(frame)
         # draw.draw_pose(frame, whole_pose)
+
+        # Segmented video
+        # mask = pose.segmentation(frame)
+        # try:
+        #     cv.imshow('Segmentation', mask.segmentation_mask)
+        # except Exception:
+        #     print("Exception in mask print")
 
         # Get relevant pose features
         results = pose.predict_relevant(frame)
@@ -409,6 +419,8 @@ def main_loop():
         draw.draw_expanded(frame, results)
 
         data.store_frame_data(results)
+
+        # temp = detect(frame)
 
         # TODO: Parse video to drop irrelevant frames
 
@@ -419,6 +431,7 @@ def main_loop():
 
         if keyboard == 115:  # 115 is "s"
             slomo = not slomo
+            cv.waitKey(1000)
             print(slomo)
         if keyboard == 113:  # 113 is "q"
             sys.exit(0)
@@ -453,6 +466,7 @@ def main_loop():
         keyboard = cv.waitKey(1)
         if keyboard == 115:  # 115 is "s"
             slomo = not slomo
+            cv.waitKey(1000)
             print(slomo)
 
         if keyboard == 113:  # 113 is "q"
@@ -463,4 +477,4 @@ if __name__ == "__main__":
     # play the video, main loop
     main_loop()
     # TODO: Graph tracking at end of video
-    draw.show_graphs(data)
+    draw.show_graphs(data, temp)

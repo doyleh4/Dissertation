@@ -1,4 +1,5 @@
 # required imports
+import cv2
 import mediapipe as mp
 import numpy as np
 
@@ -26,7 +27,7 @@ class PoseEstimation:
         self.pose = self.mpPose.Pose()
 
     def init_vars(self, frame):
-        return frame.copy(), list(), self.pose.process(frame)
+        return frame.copy(), list(), self.pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
     def predict_pose(self, frame):
         """
@@ -91,3 +92,7 @@ class PoseEstimation:
         return normalise_all(landmarks_subset, frame)
 
     # TODO: Get mask of person segmentation and return that
+    def segmentation(self, frame):
+        seg_pose = self.mpPose.Pose(enable_segmentation=True)
+        mask = seg_pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        return mask

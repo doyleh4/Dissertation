@@ -64,6 +64,8 @@ class GraphHelper:
         cv.line(temp, points[10], points[6], (255, 0, 0), 2)  # left foot to left hip
         cv.line(temp, points[6], points[4], (255, 0, 0), 2)  # left hip to lef shoulder
 
+        cv.circle(temp, points[0], 5, (0, 255, 255), -1)  # left wrist
+
         cv.imshow("Expanded checks", temp)
 
     def draw_dtl_checks(self, frame, points):
@@ -102,17 +104,14 @@ class GraphHelper:
 
         cv.imshow("Expanded checks", temp)
 
-    def show_graphs(self, data):
+    def show_graphs(self, data, t):
         fig, ax = plt.subplots()
 
-        tempX = []
-        tempY = []
-        for item in data.data['lw']:
-            # Open CV uses X,Y - where X is column, Y is row
-            tempX.append(item[0])
-            tempY.append(item[1])
+        tempX = [x[0] for x in data.data['lw']]
+        tempY = [t - x[1] for x in data.data['lw']]  # t is to match the coordinate system of opencv and matplotlib
         plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
         plt.plot(tempX, tempY)
+        plt.scatter(tempX[0], tempY[0])
         plt.show()
 
         tempX = data.data["shoulder_slope"]
@@ -120,5 +119,9 @@ class GraphHelper:
         plt.show()
 
         tempX = data.data["lead_leg_to_shoulder"]
+        plt.plot(tempX)
+        plt.show()
+
+        tempX = data.data["acc"]
         plt.plot(tempX)
         plt.show()

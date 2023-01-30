@@ -1,3 +1,6 @@
+import math
+
+
 class DataRecord:
     """
         Class to provide data storage functionality
@@ -7,7 +10,8 @@ class DataRecord:
         self.data = {
             "lw": [],
             "shoulder_slope": [],
-            "lead_leg_to_shoulder": []
+            "lead_leg_to_shoulder": [],
+            "acc": []
         }
 
     def store_frame_data(self, pose_data):
@@ -25,3 +29,12 @@ class DataRecord:
         self.data["lw"].append(pose_data[0])
         self.data["shoulder_slope"].append((pose_data[5][1] - pose_data[4][1]) / (pose_data[5][0] - pose_data[4][0]))
         self.data["lead_leg_to_shoulder"].append(pose_data[11][0] - pose_data[5][0])
+
+        if len(self.data["lw"]) > 1:
+            dist = math.dist(self.data["lw"][len(self.data["lw"]) - 2], self.data["lw"][len(self.data["lw"]) - 1])
+            self.data["acc"].append(dist)
+            # self.data["acc"].append(
+            #     # self.data["lw"][len(self.data["lw"]) - 2] - self.data["lw"][
+            #     #     len(self.data["lw"]) - 1] / 0.6)  # formula for acceleration 0.6 is frame rate 60 fps
+            #     math.sqrt()
+            # )
