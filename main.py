@@ -349,6 +349,7 @@ import sys
 
 import cv2 as cv
 
+from helper_funcs.ball_detector import detect
 # Custom class imports
 from helper_funcs.data_record import DataRecord as Data
 from helper_funcs.graphing import GraphHelper as Graph
@@ -399,6 +400,8 @@ def main_loop():
 
         frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
         temp = frame.shape[1]
+
+        # TODO: FInd out why it doesnt rotate on mac but does on windows
         frame = cv.rotate(frame, cv.ROTATE_180)
 
         # Get pose estimation for frame
@@ -412,11 +415,12 @@ def main_loop():
         # except Exception:
         #     print("Exception in mask print")
 
+        ball = detect(frame)
         # Get relevant pose features
         results = pose.predict_relevant(frame)
         draw.draw_pose_results(frame, results)
 
-        draw.draw_expanded(frame, results)
+        draw.draw_expanded(frame, results, ball)
 
         data.store_frame_data(results)
 
@@ -427,7 +431,8 @@ def main_loop():
         # TODO: Classify swing stage (downswing, followthrough etc...)
 
         cv.imshow('Frame', frame)
-        keyboard = cv.waitKey(1)
+        # keyboard = cv.waitKey(1)
+        keyboard = cv.waitKey(100)
 
         if keyboard == 115:  # 115 is "s"
             slomo = not slomo
@@ -450,11 +455,13 @@ def main_loop():
         frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
         frame = cv.rotate(frame, cv.ROTATE_180)
 
+        ball = detect(frame)
+
         # Get relevant pose features
         results = pose.predict_dtl_pose(frame)
         draw.draw_pose_results(frame, results)
 
-        draw.draw_dtl_checks(frame, results)
+        draw.draw_dtl_checks(frame, results, ball)
 
         # data.store_frame_data(results)
 
@@ -466,7 +473,7 @@ def main_loop():
         keyboard = cv.waitKey(1)
         if keyboard == 115:  # 115 is "s"
             slomo = not slomo
-            cv.waitKey(1000)
+            cv.waitKey(10000)
             print(slomo)
 
         if keyboard == 113:  # 113 is "q"

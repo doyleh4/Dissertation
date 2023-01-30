@@ -24,11 +24,12 @@ class GraphHelper:
 
         cv.imshow("Points", temp)
 
-    def draw_expanded(self, frame, points):
+    def draw_expanded(self, frame, points, ball):
         """
         Will draw the points as we want to check them for front view
         :param frame:
         :param points:
+        :param ball:
         """
 
         """
@@ -36,6 +37,7 @@ class GraphHelper:
             6: left hip, 7: right hip, 8: left knee, 9: right knee, ,10: left ankle, 11: right ankle, 12: right heel,
             13: right foot index/toe, 14: left ear, 15: nose
         """
+        # TODO: Change nose here to left ear
         temp = frame.copy()
 
         # Shoulders
@@ -56,23 +58,35 @@ class GraphHelper:
         cv.line(temp, points[12], points[13], (0, 0, 255), 5)
 
         # Lead foot inline to head
-        cv.line(temp, points[10], points[6], (255, 255, 0), 4)  # left foot to left hip
+        cv.line(temp, points[10], points[8], (255, 255, 0), 4)  # left foot to left knee
+        cv.line(temp, points[8], points[6], (255, 255, 0), 4)  # left knee to left hip
         cv.line(temp, points[6], points[4], (255, 255, 0), 4)  # left hip to lef shoulder
         cv.line(temp, points[4], points[15], (255, 255, 0), 4)  # left shoulder to nose
+        # Draw the individual points that are being tracked after next check top avoid over lapping
 
         # Lead foot, hip to shoulder inline (similar to above but different check)
         cv.line(temp, points[10], points[6], (255, 0, 0), 2)  # left foot to left hip
         cv.line(temp, points[6], points[4], (255, 0, 0), 2)  # left hip to lef shoulder
 
+        cv.circle(temp, points[10], 3, (255, 0, 255), -1)
+        cv.circle(temp, points[8], 3, (255, 0, 255), -1)
+        cv.circle(temp, points[6], 3, (255, 0, 255), -1)
+        cv.circle(temp, points[4], 3, (255, 0, 255), -1)
+
         cv.circle(temp, points[0], 5, (0, 255, 255), -1)  # left wrist
+
+        # Draw the balls location (for now)
+        # TODO: Update this to detect in the first frame and track it after that
+        cv.ellipse(temp, ball, (0, 0, 255), 2)
 
         cv.imshow("Expanded checks", temp)
 
-    def draw_dtl_checks(self, frame, points):
+    def draw_dtl_checks(self, frame, points, ball):
         """
         Will draw the points as we want to check them for down the line view
         :param frame:
         :param points:
+        :param ball:
         """
         """
             Indexes - 0: right hip, 1: right knee, 2: right ankle, 3: right shoulder, 4: right elbow, 5: right wrist,
@@ -101,6 +115,10 @@ class GraphHelper:
 
         # Right foot
         cv.line(temp, points[8], points[9], (255, 0, 255), 2)  # right shoulder to elbow
+
+        # Draw the balls location (for now)
+        # TODO: Update this to detect in the first frame and track it after that
+        cv.ellipse(temp, ball, (0, 0, 255), 2)
 
         cv.imshow("Expanded checks", temp)
 
