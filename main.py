@@ -397,7 +397,7 @@ def main_loop():
         if not ret:
             print("Can't receive frame (stream end?). Exiting ...")
             break
-
+        
         frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
         temp = frame.shape[1]
 

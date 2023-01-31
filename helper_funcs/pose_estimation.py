@@ -96,3 +96,10 @@ class PoseEstimation:
         seg_pose = self.mpPose.Pose(enable_segmentation=True)
         mask = seg_pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         return mask
+
+    def get_left_wrist(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[15]  # left wrist
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
