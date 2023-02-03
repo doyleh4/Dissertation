@@ -21,6 +21,7 @@ cap = cv.VideoCapture(video_path)
 
 # Ground truth director
 left_wrist_truth_path = "./ground_truth/left_wrist"
+left_shoulder_truth_path = "./ground_truth/left_shoulder"
 
 # Frames we have ground truth for
 # The ground truth images MUST be named by these indices
@@ -41,18 +42,42 @@ def test_left_wrist(frame, index):
     higher_red = np.array([5, 5, 255])
     mask = cv.inRange(ground_truth, lower_red, higher_red)
 
-    # kernel = np.ones((5, 5), np.uint8)
-    # mask = cv.dilate(mask, kernel, iterations=5)
+    kernel = np.ones((5, 5), np.uint8)
+    mask = cv.dilate(mask, kernel, iterations=2)
 
     print("For frame {} value at coordinates is {}".format(index, mask[wrist_coords[1], wrist_coords[0]]))
     # if
 
     if debug:
         temp = ground_truth.copy()
-        cv.circle(temp, wrist_coords, 3, (0, 175, 175), -1)
+        cv.circle(temp, wrist_coords, 3, 175, -1)
         cv.imshow("Ground Truth", temp)
         cv.waitKey()
     return 0
+
+
+def test_left_shoulder(frame, index):
+    shoulder_coords = pose.get_left_shoulder(frame)
+
+    # Get ground truth image for this frame
+    ground_truth = cv.imread("{}/{}.jpg".format(left_shoulder_truth_path, str(index)))
+
+    # Get a binary image for the marked ground truth area
+    lower_red = np.array([0, 0, 250])
+    higher_red = np.array([5, 5, 255])
+    mask = cv.inRange(ground_truth, lower_red, higher_red)
+
+    kernel = np.ones((5, 5), np.uint8)
+    mask = cv.dilate(mask, kernel, iterations=2)
+
+    print("For frame {} value at coordinates is {}".format(index, mask[shoulder_coords[1], shoulder_coords[0]]))
+    # if
+
+    if debug:
+        temp = ground_truth.copy()
+        cv.circle(temp, shoulder_coords, 3, (0, 175, 175), -1)
+        cv.imshow("Ground Truth", temp)
+        cv.waitKey()
 
 
 if __name__ == "__main__":
@@ -75,4 +100,5 @@ if __name__ == "__main__":
 
         if frame_index in frame_indices:
             # print("Frame to test occcured: Running Tests")
-            test_left_wrist(frame, frame_index)
+            # test_left_wrist(frame, frame_index)
+            test_left_shoulder(frame, frame_index)

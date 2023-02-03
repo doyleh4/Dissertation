@@ -397,12 +397,12 @@ def main_loop():
         if not ret:
             print("Can't receive frame (stream end?). Exiting ...")
             break
-        
+
         frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
         temp = frame.shape[1]
 
         # TODO: FInd out why it doesnt rotate on mac but does on windows
-        # frame = cv.rotate(frame, cv.ROTATE_180)
+        frame = cv.rotate(frame, cv.ROTATE_180)
 
         # Get pose estimation for frame
         # whole_pose = pose.predict_pose(frame)

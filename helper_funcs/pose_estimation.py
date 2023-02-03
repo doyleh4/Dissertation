@@ -103,3 +103,10 @@ class PoseEstimation:
 
         # Normalise co-ordinates and return
         return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_left_shoulder(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[11]  # left shoulder
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
