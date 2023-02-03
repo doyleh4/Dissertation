@@ -37,26 +37,27 @@ def test_left_wrist(frame, index):
     ground_truth = cv.imread("{}/{}.jpg".format(left_wrist_truth_path, str(index)))
 
     # Get a binary image for the marked ground truth area
-    lower_red = np.array([0, 0, 254])
-    higher_red = np.array([1, 1, 255])
+    lower_red = np.array([0, 0, 250])
+    higher_red = np.array([5, 5, 255])
     mask = cv.inRange(ground_truth, lower_red, higher_red)
 
     # kernel = np.ones((5, 5), np.uint8)
-    # mask = cv.dilate(mask, kernel, iterations=3)
+    # mask = cv.dilate(mask, kernel, iterations=5)
 
-    print("For frame {} value at coordinates is {}".format(index, mask[wrist_coords[0], wrist_coords[1]]))
+    print("For frame {} value at coordinates is {}".format(index, mask[wrist_coords[1], wrist_coords[0]]))
     # if
 
     if debug:
-        temp = mask.copy()
-        cv.circle(temp, wrist_coords, 1, 127, -1)
+        temp = ground_truth.copy()
+        cv.circle(temp, wrist_coords, 3, (0, 175, 175), -1)
         cv.imshow("Ground Truth", temp)
-
+        cv.waitKey()
     return 0
 
 
 if __name__ == "__main__":
     print("Running tests for the project")
+    # TODO: Change this to be for the given images instead of the video feed
     while cap.isOpened():
         ret, frame = cap.read()
 

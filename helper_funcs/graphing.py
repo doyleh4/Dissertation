@@ -1,11 +1,15 @@
 # required imports
 import cv2 as cv
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 # def normalise(x, y, width, height):
 #     return [int(x * width), int(y * height)]
-
+def smooth_line(points, window_size=5):
+    line = np.array(points)
+    window = np.ones(int(window_size))/float(window_size)
+    return np.convolve(line, window, 'same')
 
 class GraphHelper:
     """
@@ -125,11 +129,17 @@ class GraphHelper:
     def show_graphs(self, data, t):
         fig, ax = plt.subplots()
 
-        tempX = [x[0] for x in data.data['lw']]
-        tempY = [t - x[1] for x in data.data['lw']]  # t is to match the coordinate system of opencv and matplotlib
+        tempX = [val[0] for val in data.data['lw']]
+        tempY = [t - val[1] for val in data.data['lw']]  # t is to match the coordinate system of opencv and matplotlib
         plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
         plt.plot(tempX, tempY)
         plt.scatter(tempX[0], tempY[0])
+
+        # Fit a curve to those points
+        coeffs = np.polyfit(tempX, tempY, 29)
+        x_fit = np.linspace(min(tempX), max(tempX), 100)
+        y_fit = np.polyval(coeffs, x_fit)
+        plt.plot(x_fit, y_fit, "r")
         plt.show()
 
         tempX = data.data["shoulder_slope"]

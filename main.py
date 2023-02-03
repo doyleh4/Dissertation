@@ -402,7 +402,7 @@ def main_loop():
         temp = frame.shape[1]
 
         # TODO: FInd out why it doesnt rotate on mac but does on windows
-        frame = cv.rotate(frame, cv.ROTATE_180)
+        # frame = cv.rotate(frame, cv.ROTATE_180)
 
         # Get pose estimation for frame
         # whole_pose = pose.predict_pose(frame)
