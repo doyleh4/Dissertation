@@ -97,6 +97,8 @@ class PoseEstimation:
         mask = seg_pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         return mask
 
+    # TODO: Could change this to be less repetitive (i.e. calculate the pose once)
+
     def get_left_wrist(self, frame):
         res, points, results = self.init_vars(frame)
         landmark = results.pose_landmarks.landmark[15]  # left wrist
@@ -107,6 +109,104 @@ class PoseEstimation:
     def get_left_shoulder(self, frame):
         res, points, results = self.init_vars(frame)
         landmark = results.pose_landmarks.landmark[11]  # left shoulder
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_left_elbow(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[13]  # left elbow
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_left_knee(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[25]  # left knee
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_left_hip(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[23]  # left hip
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_left_ankle(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[27]  # left ankle
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_right_wrist(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[16]  # right wrist
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_right_elbow(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[14]  # right elbow
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_right_shoulder(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[12]  # right shoulder
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_right_hip(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[24]  # right hip
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_right_knee(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[26]  # right knee
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_right_ankle(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[28]  # right ankle
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_right_heel(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[30]  # right heel
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_right_toe(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[32]  # right heel
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_nose(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[0]  # right heel
+
+        # Normalise co-ordinates and return
+        return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+    def get_left_ear(self, frame):
+        res, points, results = self.init_vars(frame)
+        landmark = results.pose_landmarks.landmark[7]  # right heel
 
         # Normalise co-ordinates and return
         return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
