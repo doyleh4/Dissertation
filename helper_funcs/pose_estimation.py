@@ -24,7 +24,7 @@ class PoseEstimation:
 
     def __init__(self):
         self.mpPose = mp.solutions.pose
-        self.pose = self.mpPose.Pose()
+        self.pose = self.mpPose.Pose(smooth_landmarks=True, min_tracking_confidence=0.75)
 
     def init_vars(self, frame):
         return frame.copy(), list(), self.pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -69,6 +69,12 @@ class PoseEstimation:
             results.pose_landmarks.landmark[7],  # 14: left ear
             results.pose_landmarks.landmark[0]  # 15: nose
         ]
+        # landmarks_subset = []
+        # landmark_indexs = [15, 16, 13, 14, 11, 12, 23, 24, 25, 26, 27, 28, 30, 32, 7, 0]
+        #
+        # for index in landmark_indexs:
+        #     if type(results.pose_landmarks.landmark[index]) is None:
+        #         print("Mamma Mia")
 
         return normalise_all(landmarks_subset, frame)
 

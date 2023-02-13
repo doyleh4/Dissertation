@@ -8,8 +8,49 @@ import numpy as np
 #     return [int(x * width), int(y * height)]
 def smooth_line(points, window_size=5):
     line = np.array(points)
-    window = np.ones(int(window_size))/float(window_size)
+    window = np.ones(int(window_size)) / float(window_size)
     return np.convolve(line, window, 'same')
+
+
+def remove_outliers(data):
+    """
+    A function to remove outlier points from the data
+    Uses a z-score and threshold approach to get rid of outliers
+
+    Note: This doesnt work perfectly, it will delete some of the handpoints in the followthrough
+    but because we are not verifying the location of hand in that stage this is ok but we may need to
+    change for other tracking points. Hopefully not
+
+    TODO: Make this work for all tracked points
+    """
+    thresh = 0.95
+    coords = np.array(data)
+
+    # Calculate z-scores and get outliers
+    z_scores = np.abs((coords - np.mean(coords, axis=0)) / np.std(coords, axis=0))
+    outliers = np.argwhere(z_scores > thresh)
+    indices = np.unique(outliers[:, 0])
+
+    # We need to return the y values as negative, to offset the differnce of MATPLOTLIB and opencv
+    arr = coords[indices]
+    arr[:, 1] = -arr[:, 1]
+    return coords[indices]
+
+    # # DEBUG Stuff # TODO delete this
+    # t = np.arange(coords.shape[0])
+    # missing = np.setxor1d(t, indices)
+    #
+    # print("Z scores at indexes are")
+    # for i, index in enumerate(missing):
+    #     print("{}:{}".format(index, z_scores[index]))
+    #
+    # temp_data = np.delete(coords, indices, axis=0)
+    # x = [val[0] for val in temp_data]
+    # y = [val[1] for val in temp_data]
+    # plt.scatter(x, y)
+    # plt.margins(1, 2.8)
+    # plt.show()
+
 
 class GraphHelper:
     """
@@ -129,16 +170,21 @@ class GraphHelper:
     def show_graphs(self, data, t):
         fig, ax = plt.subplots()
 
-        tempX = [val[0] for val in data.data['lw']]
-        tempY = [t - val[1] for val in data.data['lw']]  # t is to match the coordinate system of opencv and matplotlib
+        filtered = remove_outliers(data.data['lw'])  # Delete outlier points
+        tempX = [val[0] for val in filtered]
+        tempY = [val[1] for val in
+                 filtered]  # t is to match the coordinate system of opencv and matplotlib
+        # TODO: t - val[1] seems to shove it below the y axis so fix this
         plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        plt.plot(tempX, tempY)
+        curve, = plt.plot(tempX, tempY)
         plt.scatter(tempX[0], tempY[0])
 
         # Fit a curve to those points
         coeffs = np.polyfit(tempX, tempY, 29)
         x_fit = np.linspace(min(tempX), max(tempX), 100)
         y_fit = np.polyval(coeffs, x_fit)
+        ax.invert_yaxis()
+        y_vals = curve.get_ydata()
         plt.plot(x_fit, y_fit, "r")
         plt.show()
 

@@ -384,6 +384,10 @@ data = Data()
 
 temp = 0
 
+# Debug help
+# pause_at = [29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 57, 58, 59, 60, 61, 62, 63, 64, 71, 72, 73, 74, 77]
+pause_at = []
+
 
 def main_loop():
     # Process front view
@@ -398,7 +402,14 @@ def main_loop():
             print("Can't receive frame (stream end?). Exiting ...")
             break
 
+        # Get frame number
+        frame_num = frontal_view.get(cv.CAP_PROP_POS_FRAMES)
+
+        if frame_num in pause_at:
+            cv.waitKey()
+
         frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
+        global temp
         temp = frame.shape[1]
 
         # TODO: FInd out why it doesnt rotate on mac but does on windows
@@ -429,6 +440,9 @@ def main_loop():
         # TODO: Parse video to drop irrelevant frames
 
         # TODO: Classify swing stage (downswing, followthrough etc...)
+        # Draw frame number
+        text = f'Frame: {int(frame_num)}'
+        cv.putText(frame, text, (10, 50), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
         cv.imshow('Frame', frame)
         # keyboard = cv.waitKey(1)
