@@ -385,8 +385,11 @@ data = Data()
 temp = 0
 
 # Debug help
-# pause_at = [29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 57, 58, 59, 60, 61, 62, 63, 64, 71, 72, 73, 74, 77]
-pause_at = []
+pause_at = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+            30, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 65, 66, 67, 68, 69, 70, 75, 76]
+
+
+# pause_at = []
 
 
 def main_loop():
@@ -405,8 +408,8 @@ def main_loop():
         # Get frame number
         frame_num = frontal_view.get(cv.CAP_PROP_POS_FRAMES)
 
-        if frame_num in pause_at:
-            cv.waitKey()
+        # if frame_num not in pause_at:
+        #     cv.waitKey()
 
         frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
         global temp
