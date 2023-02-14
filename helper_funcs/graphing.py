@@ -4,6 +4,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+# helper imports
+
+
+# helper imports
+
+
 # def normalise(x, y, width, height):
 #     return [int(x * width), int(y * height)]
 def smooth_line(points, window_size=5):
@@ -32,9 +38,18 @@ def remove_outliers(data):
     indices = np.unique(outliers[:, 0])
 
     # We need to return the y values as negative, to offset the differnce of MATPLOTLIB and opencv
-    arr = coords[indices]
-    arr[:, 1] = -arr[:, 1]
-    return coords[indices]
+    # arr = coords[indices]
+    # arr[:, 1] = -arr[:, 1]
+
+    # Keep only indices (makes array shorter)
+    # res = coords[indices]
+    # res = np.vstack([res, [None, None]])
+
+    # Change index not in indices to None
+    res = np.empty_like(coords, dtype=object)
+    res[indices, :] = coords[indices, :]
+
+    return res
 
     # # DEBUG Stuff # TODO delete this
     # t = np.arange(coords.shape[0])
@@ -50,6 +65,64 @@ def remove_outliers(data):
     # plt.scatter(x, y)
     # plt.margins(1, 2.8)
     # plt.show()
+
+
+def estimate_missing_points(points):
+    """
+    If an array with missing rows is passed in after outliers are removed, this function will estimate
+    the "realistic" values of the outlier points. For now these estimated values are lines, instead of curves.
+    While this will decrease the accuarcy, it is minimal.
+    :param filtered:
+    :return: estimated array
+    """
+    # Using mean imputation for missing rows.
+    # mean_imputer = SimpleImputer(strategy="mean")
+    # data_imputed = mean_imputer.fit_transform(filtered)
+
+    # Using variance thresholding
+    # var_thresh = VarianceThreshold(threshold=0.1)
+    # data_imputed = var_thresh.fit_transform(filtered)
+
+    # # Use KNN to estimate the data from the mean
+    # knn_imputer = KNNImputer(n_neighbors=5, weights="distance")
+    # knn_imputer.fit(filtered)
+    #
+    # res = knn_imputer.transform(filtered)
+
+    # Iterate over the points
+    for i in range(1, len(points) - 1):
+        # If the current point is missing
+        if points[i][0] is None and points[i][1] is None:
+            # Find the closest known points before and after
+            j = i - 1
+            while j >= 0 and points[j][0] is None and points[j][1] is None:
+                j -= 1
+            k = i + 1
+            while k < len(points) and points[k][0] is None and points[k][1] is None:
+                k += 1
+            # Calculate the slope and intercept between the known points
+            # x1, y1 = points[j]
+            # x2, y2 = points[k]
+            # m = (y2 - y1) / (x2 - x1)
+            # b = y1 - m * x1
+            # # Estimate the missing point using the linear equation
+            # # x = points[i - 1, 0]
+            # y = m * (i + 1) + b
+            # points[i] = [i + 1, y]
+
+            start_point = points[j]
+            end_point = points[k]
+
+            n = k - j + 1
+
+            dx = (end_point[0] - start_point[0]) / (n - 1)
+            dy = (end_point[1] - start_point[1]) / (n - 1)
+
+            t = np.array([[start_point[0] + i * dx, start_point[1] + i * dy] for i in range(n)])
+
+            points[j:k + 1, :] = t
+
+    return points
 
 
 class GraphHelper:
@@ -169,23 +242,33 @@ class GraphHelper:
 
     def show_graphs(self, data, t):
         fig, ax = plt.subplots()
+        ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
 
         filtered = remove_outliers(data.data['lw'])  # Delete outlier points
         tempX = [val[0] for val in filtered]
-        tempY = [val[1] for val in
-                 filtered]  # t is to match the coordinate system of opencv and matplotlib
+        tempY = [val[1] for val in filtered]
         # TODO: t - val[1] seems to shove it below the y axis so fix this
         plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
         curve, = plt.plot(tempX, tempY)
         plt.scatter(tempX[0], tempY[0])
 
         # Fit a curve to those points
-        coeffs = np.polyfit(tempX, tempY, 29)
-        x_fit = np.linspace(min(tempX), max(tempX), 100)
-        y_fit = np.polyval(coeffs, x_fit)
-        ax.invert_yaxis()
+        # coeffs = np.polyfit(tempX, tempY, 29)
+        # x_fit = np.linspace(min(tempX), max(tempX), 100)
+        # y_fit = np.polyval(coeffs, x_fit)
+        # plt.plot(x_fit, y_fit, "r")
+        plt.show()
+
+        # TODO: Move this above, just want both graphs for cdev
+        filled = estimate_missing_points(filtered)
+        tempX = [val[0] for val in filled]
+        tempY = [val[1] for val in filled]
+        ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
+
+        plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        curve, = plt.plot(tempX, tempY)
+        plt.scatter(tempX[0], tempY[0])
         y_vals = curve.get_ydata()
-        plt.plot(x_fit, y_fit, "r")
         plt.show()
 
         tempX = data.data["shoulder_slope"]
