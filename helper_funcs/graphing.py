@@ -2,6 +2,7 @@
 
 import cv2 as cv
 import numpy as np
+from matplotlib import pyplot as plt
 
 
 # helper imports
@@ -251,23 +252,23 @@ class GraphHelper:
         cv.imshow("Expanded checks", temp)
 
     def show_graphs(self, data, t):
-        # fig, ax = plt.subplots()
-        # ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
-        #
-        # tempX = [val[0] for val in data.data['lw']]
-        # tempY = [val[1] for val in data.data['lw']]
-        # # TODO: t - val[1] seems to shove it below the y axis so fix this
-        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        # curve, = plt.plot(tempX, tempY)
-        # plt.scatter(tempX[0], tempY[0])
+        fig, ax = plt.subplots()
+        ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
+
+        tempX = [val[0] for val in data.data['lw']]
+        tempY = [val[1] for val in data.data['lw']]
+        # TODO: t - val[1] seems to shove it below the y axis so fix this
+        plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        curve, = plt.plot(tempX, tempY)
+        plt.scatter(tempX[0], tempY[0])
 
         filtered = remove_outliers(data.data['lw'])  # Delete outlier points
-        # tempX = [val[0] for val in filtered]
-        # tempY = [val[1] for val in filtered]
-        # # TODO: t - val[1] seems to shove it below the y axis so fix this
-        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        # curve, = plt.plot(tempX, tempY)
-        # plt.scatter(tempX[0], tempY[0])
+        tempX = [val[0] for val in filtered]
+        tempY = [val[1] for val in filtered]
+        # TODO: t - val[1] seems to shove it below the y axis so fix this
+        plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        curve, = plt.plot(tempX, tempY)
+        plt.scatter(tempX[0], tempY[0])
 
         # Fit a curve to those points
         # coeffs = np.polyfit(tempX, tempY, 29)
@@ -278,26 +279,26 @@ class GraphHelper:
 
         # TODO: Move this above, just want both graphs for cdev
         filled = estimate_missing_points(filtered)
-        # tempX = [val[0] for val in filled]
-        # tempY = [val[1] for val in filled]
-        # ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
+        tempX = [val[0] for val in filled]
+        tempY = [val[1] for val in filled]
+        ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
 
         self.set_processed_data(filled)
 
-        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        # curve, = plt.plot(tempX, tempY)
-        # plt.scatter(tempX[0], tempY[0])
-        # y_vals = curve.get_ydata()
-        # plt.show()
-        #
-        # tempX = data.data["shoulder_slope"]
-        # plt.plot(tempX)
-        # plt.show()
-        #
-        # tempX = data.data["lead_leg_to_shoulder"]
-        # plt.plot(tempX)
-        # plt.show()
-        #
-        # tempX = data.data["acc"]
-        # plt.plot(tempX)
-        # plt.show()
+        plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        curve, = plt.plot(tempX, tempY)
+        plt.scatter(tempX[0], tempY[0])
+        y_vals = curve.get_ydata()
+        plt.show()
+
+        tempX = data.data["shoulder_slope"]
+        plt.plot(tempX)
+        plt.show()
+
+        tempX = data.data["lead_leg_to_shoulder"]
+        plt.plot(tempX)
+        plt.show()
+
+        tempX = data.data["acc"]
+        plt.plot(tempX)
+        plt.show()

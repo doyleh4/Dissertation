@@ -24,8 +24,9 @@ def calculate_acceleration(filled):
     # Smoothen this to make the classification easier
     # TODO: This savgol filer parameters could be changed if the frame rate is differnet (i.e. slo-mo camera), this result
     # doesnt turn out similar in slo-mo videos
-    res = savgol_filter(res, 30, 3)  # window size 30, polynomial order 6 (expected shape, but bumpy)
-    # res = savgol_filter(res, 30, 6)  # window size 30, polynomial order 6 (expected shape, but bumpy)
+    res = savgol_filter(res, 30, 3)  # window size 30, polynomial order 6 - good for regular speed
+    # res = savgol_filter(res, 180, 3)  # (expected shape, but bumpy) - good for slo-mo but needs more experimentation
+    # res = savgol_filter(res, 12, 3)
     return res
 
 
