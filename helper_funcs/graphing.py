@@ -1,6 +1,6 @@
 # required imports
+
 import cv2 as cv
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -110,17 +110,18 @@ def estimate_missing_points(points):
             # y = m * (i + 1) + b
             # points[i] = [i + 1, y]
 
-            start_point = points[j]
-            end_point = points[k]
+            if (k < len(points)):
+                start_point = points[j]
+                end_point = points[k]
 
-            n = k - j + 1
+                n = k - j + 1
 
-            dx = (end_point[0] - start_point[0]) / (n - 1)
-            dy = (end_point[1] - start_point[1]) / (n - 1)
+                dx = (end_point[0] - start_point[0]) / (n - 1)
+                dy = (end_point[1] - start_point[1]) / (n - 1)
 
-            t = np.array([[start_point[0] + i * dx, start_point[1] + i * dy] for i in range(n)])
+                t = np.array([[start_point[0] + i * dx, start_point[1] + i * dy] for i in range(n)])
 
-            points[j:k + 1, :] = t
+                points[j:k + 1, :] = t
 
     return points
 
@@ -129,6 +130,15 @@ class GraphHelper:
     """
         Class to do graphing functions
     """
+
+    def __init__(self):
+        self.processed_data = None
+
+    def set_processed_data(self, data):
+        self.processed_data = data
+
+    def get_processed_data(self):
+        return self.processed_data
 
     def draw_pose_results(self, frame, points):
         """
@@ -241,44 +251,53 @@ class GraphHelper:
         cv.imshow("Expanded checks", temp)
 
     def show_graphs(self, data, t):
-        fig, ax = plt.subplots()
-        ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
+        # fig, ax = plt.subplots()
+        # ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
+        #
+        # tempX = [val[0] for val in data.data['lw']]
+        # tempY = [val[1] for val in data.data['lw']]
+        # # TODO: t - val[1] seems to shove it below the y axis so fix this
+        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        # curve, = plt.plot(tempX, tempY)
+        # plt.scatter(tempX[0], tempY[0])
 
         filtered = remove_outliers(data.data['lw'])  # Delete outlier points
-        tempX = [val[0] for val in filtered]
-        tempY = [val[1] for val in filtered]
-        # TODO: t - val[1] seems to shove it below the y axis so fix this
-        plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        curve, = plt.plot(tempX, tempY)
-        plt.scatter(tempX[0], tempY[0])
+        # tempX = [val[0] for val in filtered]
+        # tempY = [val[1] for val in filtered]
+        # # TODO: t - val[1] seems to shove it below the y axis so fix this
+        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        # curve, = plt.plot(tempX, tempY)
+        # plt.scatter(tempX[0], tempY[0])
 
         # Fit a curve to those points
         # coeffs = np.polyfit(tempX, tempY, 29)
         # x_fit = np.linspace(min(tempX), max(tempX), 100)
         # y_fit = np.polyval(coeffs, x_fit)
         # plt.plot(x_fit, y_fit, "r")
-        plt.show()
+        # plt.show()
 
         # TODO: Move this above, just want both graphs for cdev
         filled = estimate_missing_points(filtered)
-        tempX = [val[0] for val in filled]
-        tempY = [val[1] for val in filled]
-        ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
+        # tempX = [val[0] for val in filled]
+        # tempY = [val[1] for val in filled]
+        # ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
 
-        plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        curve, = plt.plot(tempX, tempY)
-        plt.scatter(tempX[0], tempY[0])
-        y_vals = curve.get_ydata()
-        plt.show()
+        self.set_processed_data(filled)
 
-        tempX = data.data["shoulder_slope"]
-        plt.plot(tempX)
-        plt.show()
-
-        tempX = data.data["lead_leg_to_shoulder"]
-        plt.plot(tempX)
-        plt.show()
-
-        tempX = data.data["acc"]
-        plt.plot(tempX)
-        plt.show()
+        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        # curve, = plt.plot(tempX, tempY)
+        # plt.scatter(tempX[0], tempY[0])
+        # y_vals = curve.get_ydata()
+        # plt.show()
+        #
+        # tempX = data.data["shoulder_slope"]
+        # plt.plot(tempX)
+        # plt.show()
+        #
+        # tempX = data.data["lead_leg_to_shoulder"]
+        # plt.plot(tempX)
+        # plt.show()
+        #
+        # tempX = data.data["acc"]
+        # plt.plot(tempX)
+        # plt.show()

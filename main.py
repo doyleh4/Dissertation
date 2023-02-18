@@ -350,6 +350,7 @@ import sys
 import cv2 as cv
 
 from helper_funcs.ball_detector import detect
+from helper_funcs.classify_stage import StageClassifier
 # Custom class imports
 from helper_funcs.data_record import DataRecord as Data
 from helper_funcs.graphing import GraphHelper as Graph
@@ -385,11 +386,12 @@ data = Data()
 temp = 0
 
 # Debug help
-pause_at = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-            30, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 65, 66, 67, 68, 69, 70, 75, 76]
+# pause_at = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+#             30, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 65, 66, 67, 68, 69, 70, 75, 76]
+# pause_at = [6, 12, 32, 46, 67]  # rough classifications
 
 
-# pause_at = []
+pause_at = []
 
 
 def main_loop():
@@ -408,8 +410,8 @@ def main_loop():
         # Get frame number
         frame_num = frontal_view.get(cv.CAP_PROP_POS_FRAMES)
 
-        # if frame_num not in pause_at:
-        #     cv.waitKey()
+        if frame_num in pause_at:
+            cv.waitKey()
 
         frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
         global temp
@@ -448,8 +450,8 @@ def main_loop():
         cv.putText(frame, text, (10, 50), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
         cv.imshow('Frame', frame)
-        # keyboard = cv.waitKey(1)
-        keyboard = cv.waitKey(100)
+        keyboard = cv.waitKey(1)
+        # keyboard = cv.waitKey(100)
 
         if keyboard == 115:  # 115 is "s"
             slomo = not slomo
@@ -458,43 +460,41 @@ def main_loop():
         if keyboard == 113:  # 113 is "q"
             sys.exit(0)
 
-    # Process other Down the Line view
-    while dtl_view.isOpened():
-        if slomo:
-            cv.waitKey(200)
-        ret, frame = dtl_view.read()
-
-        # if frame is read correctly ret is True
-        if not ret:
-            print("Can't receive frame (stream end?). Exiting ...")
-            break
-
-        frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
-        frame = cv.rotate(frame, cv.ROTATE_180)
-
-        ball = detect(frame)
-
-        # Get relevant pose features
-        results = pose.predict_dtl_pose(frame)
-        draw.draw_pose_results(frame, results)
-
-        draw.draw_dtl_checks(frame, results, ball)
-
-        # data.store_frame_data(results)
-
-        # TODO: Parse video to drop irrelevant frames
-
-        # TODO: Classify swing stage (downswing, followthrough etc...)
-
-        cv.imshow('Frame', frame)
-        keyboard = cv.waitKey(1)
-        if keyboard == 115:  # 115 is "s"
-            slomo = not slomo
-            cv.waitKey(10000)
-            print(slomo)
-
-        if keyboard == 113:  # 113 is "q"
-            sys.exit(0)
+    # # Process other Down the Line view
+    # while dtl_view.isOpened():
+    #     if slomo:
+    #         cv.waitKey(200)
+    #     ret, frame = dtl_view.read()
+    #
+    #     # if frame is read correctly ret is True
+    #     if not ret:
+    #         print("Can't receive frame (stream end?). Exiting ...")
+    #         break
+    #
+    #     frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
+    #     frame = cv.rotate(frame, cv.ROTATE_180)
+    #
+    #     ball = detect(frame)
+    #
+    #     # Get relevant pose features
+    #     results = pose.predict_dtl_pose(frame)
+    #     draw.draw_pose_results(frame, results)
+    #
+    #     draw.draw_dtl_checks(frame, results, ball)
+    #
+    #     # data.store_frame_data(results)
+    #
+    #     # TODO: Parse video to drop irrelevant frames
+    #
+    #     cv.imshow('Frame', frame)
+    #     keyboard = cv.waitKey(1)
+    #     if keyboard == 115:  # 115 is "s"
+    #         slomo = not slomo
+    #         cv.waitKey(10000)
+    #         print(slomo)
+    #
+    #     if keyboard == 113:  # 113 is "q"
+    #         sys.exit(0)
 
 
 if __name__ == "__main__":
@@ -502,3 +502,7 @@ if __name__ == "__main__":
     main_loop()
     # TODO: Graph tracking at end of video
     draw.show_graphs(data, temp)
+
+    acc = draw.get_processed_data()  # Get the acceleration of the hands as the smoothened curve
+    classifier = StageClassifier(acc, frontal_view)
+    classifier.classify()
