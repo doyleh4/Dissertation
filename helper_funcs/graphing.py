@@ -2,7 +2,6 @@
 
 import cv2 as cv
 import numpy as np
-from matplotlib import pyplot as plt
 
 
 # helper imports
@@ -252,23 +251,23 @@ class GraphHelper:
         cv.imshow("Expanded checks", temp)
 
     def show_graphs(self, data, t):
-        fig, ax = plt.subplots()
-        ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
-
-        tempX = [val[0] for val in data.data['lw']]
-        tempY = [val[1] for val in data.data['lw']]
-        # TODO: t - val[1] seems to shove it below the y axis so fix this
-        plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        curve, = plt.plot(tempX, tempY)
-        plt.scatter(tempX[0], tempY[0])
+        # fig, ax = plt.subplots()
+        # ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
+        #
+        # tempX = [val[0] for val in data.data['lw']]
+        # tempY = [val[1] for val in data.data['lw']]
+        # # TODO: t - val[1] seems to shove it below the y axis so fix this
+        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        # curve, = plt.plot(tempX, tempY)
+        # plt.scatter(tempX[0], tempY[0])
 
         filtered = remove_outliers(data.data['lw'])  # Delete outlier points
-        tempX = [val[0] for val in filtered]
-        tempY = [val[1] for val in filtered]
-        # TODO: t - val[1] seems to shove it below the y axis so fix this
-        plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        curve, = plt.plot(tempX, tempY)
-        plt.scatter(tempX[0], tempY[0])
+        # tempX = [val[0] for val in filtered]
+        # tempY = [val[1] for val in filtered]
+        # # TODO: t - val[1] seems to shove it below the y axis so fix this
+        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        # curve, = plt.plot(tempX, tempY)
+        # plt.scatter(tempX[0], tempY[0])
 
         # Fit a curve to those points
         # coeffs = np.polyfit(tempX, tempY, 29)
@@ -279,26 +278,81 @@ class GraphHelper:
 
         # TODO: Move this above, just want both graphs for cdev
         filled = estimate_missing_points(filtered)
-        tempX = [val[0] for val in filled]
-        tempY = [val[1] for val in filled]
-        ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
+        # tempX = [val[0] for val in filled]
+        # tempY = [val[1] for val in filled]
+        # ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
 
         self.set_processed_data(filled)
+        #
+        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        # curve, = plt.plot(tempX, tempY)
+        # plt.scatter(tempX[0], tempY[0])
+        # y_vals = curve.get_ydata()
+        # plt.show()
+        #
+        # tempX = data.data["shoulder_slope"]
+        # plt.plot(tempX)
+        # plt.show()
+        #
+        # tempX = data.data["lead_leg_to_shoulder"]
+        # plt.plot(tempX)
+        # plt.show()
+        #
+        # tempX = data.data["acc"]
+        # plt.plot(tempX)
+        # plt.show()
 
-        plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        curve, = plt.plot(tempX, tempY)
-        plt.scatter(tempX[0], tempY[0])
-        y_vals = curve.get_ydata()
-        plt.show()
+    # Visualise the checks
+    def leg_width_check(self, frame, ankles, shoulders):
+        """
+        A function to display the leg checks
+        :param frame:
+        :param shoulders:
+        :param ankles:
+        :return:
+        """
+        temp = frame.copy()
 
-        tempX = data.data["shoulder_slope"]
-        plt.plot(tempX)
-        plt.show()
+        # Mark Points
+        cv.circle(temp, ankles[0], 3, (0, 0, 255), -1)
+        cv.circle(temp, ankles[1], 3, (0, 0, 255), -1)
+        cv.circle(temp, shoulders[0], 3, (0, 0, 255), -1)
+        cv.circle(temp, shoulders[1], 3, (0, 0, 255), -1)
 
-        tempX = data.data["lead_leg_to_shoulder"]
-        plt.plot(tempX)
-        plt.show()
+        # Draw line straight down from the shoulders
+        cv.line(temp, ankles[0], shoulders[0], (255, 255, 0), 1)
+        cv.line(temp, ankles[1], shoulders[1], (255, 255, 0), 1)
 
-        tempX = data.data["acc"]
-        plt.plot(tempX)
-        plt.show()
+        cv.imshow("Leg check", temp)
+
+    def one_piece_movement_check(self, frame, wrists, elbows, shoulders):
+        """
+        Display the arms and shoulders moving together
+        :param frame:
+        :param wrists:
+        :param shoulders:
+        :return:
+        """
+        temp = frame.copy()
+
+        cv.line(temp, shoulders[0], shoulders[1], (0, 255, 0), 2)  # shoulder to shoulder (COYBIG)
+        cv.line(temp, shoulders[0], elbows[0], (0, 255, 0), 2)  # shoulder to wrist
+        cv.line(temp, shoulders[1], elbows[1], (0, 255, 0), 2)
+        cv.line(temp, elbows[0], wrists[0], (0, 255, 0), 2)  # elbow to wrist
+        cv.line(temp, elbows[1], wrists[1], (0, 255, 0), 2)
+
+        cv.imshow("OPM check", temp)
+
+    def shoulder_over_foot(self, frame, shoulder, foot):
+        """
+        Dispaly the shoulder foot location in the followthrough
+        :param frame:
+        :param shoulder:
+        :param foot:
+        :return:
+        """
+        temp = frame.copy()
+
+        cv.line(temp, shoulder, foot, (255, 255, 0), 1)
+
+        cv.imshow("Shoulder over foot check", temp)

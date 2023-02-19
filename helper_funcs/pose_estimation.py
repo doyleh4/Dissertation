@@ -216,3 +216,70 @@ class PoseEstimation:
 
         # Normalise co-ordinates and return
         return normalise(landmark.x, landmark.y, frame.shape[1], frame.shape[0])
+
+
+class AnalysePose:
+    """
+    Helper for Pose analysis. Making it a separate class as we want to pass the frame in the contractor. Probably
+    similar to above and should be made as a second constructor but don't think that would work
+    """
+
+    def __init__(self, frame):
+        self.frame = frame
+
+        mpPose = mp.solutions.pose
+        pose = mpPose.Pose(smooth_landmarks=True, min_tracking_confidence=0.75)
+
+        # Temp is the media pipe results
+        results = pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+
+        # Get the subset of landmarks that we need for the problem
+        landmarks_subset = [
+            results.pose_landmarks.landmark[15],  # 0: left wrist
+            results.pose_landmarks.landmark[16],  # 1: right wrist
+            results.pose_landmarks.landmark[13],  # 2: left elbow
+            results.pose_landmarks.landmark[14],  # 3: right elbow
+            results.pose_landmarks.landmark[11],  # 4: left shoulder
+            results.pose_landmarks.landmark[12],  # 5: right shoulder
+            results.pose_landmarks.landmark[23],  # 6: left hip
+            results.pose_landmarks.landmark[24],  # 7: right hip
+            results.pose_landmarks.landmark[25],  # 8: left knee
+            results.pose_landmarks.landmark[26],  # 9: right knee
+            results.pose_landmarks.landmark[27],  # 10: left ankle
+            results.pose_landmarks.landmark[28],  # 11: right ankle
+            results.pose_landmarks.landmark[30],  # 12: right heel
+            results.pose_landmarks.landmark[32],  # 13: right foot index/toe
+            results.pose_landmarks.landmark[7],  # 14: left ear
+            results.pose_landmarks.landmark[0]  # 15: nose
+        ]
+
+        # List of all pose points to use. In functions of this class just pick from this list
+        self.results = normalise_all(landmarks_subset, frame)
+
+    def get_ankles(self):
+        """
+        Get the 2 ankle coordinatess from the normalised list
+        :return [left, right]:
+        """
+        return [self.results[10], self.results[11]]
+
+    def get_shoulders(self):
+        """
+        Get the 2 shoulder coordinates from the normalised list
+        :return [left, right]:
+        """
+        return [self.results[4], self.results[5]]
+
+    def get_wrists(self):
+        """
+        Get the 2 shoulder coordinates from the normalised list
+        :return [left, right]:
+        """
+        return [self.results[0], self.results[1]]
+
+    def get_elbows(self):
+        """
+        Get the 2 shoulder coordinates from the normalised list
+        :return [left, right]:
+        """
+        return [self.results[2], self.results[3]]

@@ -349,6 +349,7 @@ import sys
 
 import cv2 as cv
 
+from helper_funcs.analyse_swing import SwingImageAnalyser
 from helper_funcs.ball_detector import detect
 from helper_funcs.classify_stage import StageClassifier
 # Custom class imports
@@ -397,6 +398,7 @@ pause_at = []
 def main_loop():
     # Process front view
     slomo = False
+    print("Processing the inputted video")
     while frontal_view.isOpened():
         if slomo:
             cv.waitKey(200)
@@ -504,5 +506,11 @@ if __name__ == "__main__":
     draw.show_graphs(data, temp)
 
     acc = draw.get_processed_data()  # Get the acceleration of the hands as the smoothened curve
+    print("Video is being classified for its stages")
     classifier = StageClassifier(acc, frontal_view)
     classifier.classify()
+
+    # TODO: Analyse these relevant "frames" and preform checks
+    print("Analysing the inputted video for corrections")
+    swing_analyser = SwingImageAnalyser()
+    swing_analyser.analyse()

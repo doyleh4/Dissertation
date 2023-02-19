@@ -5,6 +5,18 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.signal import savgol_filter
 
+"""
+NCode used for testing but not used in the end
+        ## Using the slope to classify the satge isnt great, better to use the apex of curve
+        # slopes = []
+        # for i in range(1, len(acc)):
+        #     slopes.append((acc[i] - acc[i - 1]) / (y[i] - y[i - 1]))
+        #
+        # y = np.arange(len(slopes))
+        # plt.plot(y, slopes)
+        # plt.show()
+"""
+
 SETUP = 1
 TAKEAWAY = 2
 BACKSWING = 3
@@ -41,15 +53,8 @@ class StageClassifier:
         acc = calculate_acceleration(self.data)
         y = np.arange(len(acc))
         plt.plot(y, acc)
-        plt.show()
 
-        ## Using the slope to classify the satge isnt great, better to use the apex of curve
-        # slopes = []
-        # for i in range(1, len(acc)):
-        #     slopes.append((acc[i] - acc[i - 1]) / (y[i] - y[i - 1]))
-        #
-        # y = np.arange(len(slopes))
-        # plt.plot(y, slopes)
+        # TODO NOTE: This graph is the one that shows the classification curve of the acceleration. Needs to be in report
         # plt.show()
 
         # NOTE: When we are saving the images here, the imwrite() function extracts the frame from the video
@@ -137,11 +142,13 @@ class StageClassifier:
             #     # Read and write video between these frames
             #     self.video.set(cv.CAP_PROP_POS_FRAMES, i)
             #     ret, frame = self.video.read()
-            #     # TODO: FInd out why it doesnt rotate on mac but does on windows
+            #     # TODO: Find out why it doesnt rotate on mac but does on windows
             #     frame = cv.rotate(frame, cv.ROTATE_180)
             #     out.write(frame)
 
             state += 1
+
+            # TODO: Add a classfier for downswing!
 
             # Get the frame before and after impact (will interpolate between these), this is going to be the fastest
             # part of the swing.
