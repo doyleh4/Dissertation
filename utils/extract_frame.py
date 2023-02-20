@@ -7,14 +7,15 @@ import cv2 as cv
 video_path = "../videos/sample/sample6.mov"
 test_dir_path = "../testing/ground_truth/frames"
 
-cap = cv.VideoCapture(video_path)
-
-total_frames = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
-
 # Frames we want to save
-frame_indexs = [0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70]
 
+frame_indexs = [0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70]
+# Open video once not every iteration
+cap = cv.VideoCapture(video_path)
 if __name__ == "__main__":
+    # Open video once not every iteration
+    cap = cv.VideoCapture(video_path)
+    total_frames = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
     for i in frame_indexs:
         if i < total_frames:
             # Set cap to specified frame

@@ -392,7 +392,7 @@ temp = 0
 # pause_at = [6, 12, 32, 46, 67]  # rough classifications
 
 
-pause_at = []
+pause_at = [33, 34, 35]
 
 
 def main_loop():
