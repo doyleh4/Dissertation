@@ -2,7 +2,6 @@ import math
 
 import cv2 as cv
 import numpy as np
-from matplotlib import pyplot as plt
 from scipy.signal import savgol_filter
 
 """
@@ -51,10 +50,10 @@ class StageClassifier:
 
     def classify(self):
         acc = calculate_acceleration(self.data)
-        y = np.arange(len(acc))
-        plt.plot(y, acc)
-
-        # TODO NOTE: This graph is the one that shows the classification curve of the acceleration. Needs to be in report
+        # y = np.arange(len(acc))
+        # plt.plot(y, acc)
+        #
+        # # TODO NOTE: This graph is the one that shows the classification curve of the acceleration. Needs to be in report
         # plt.show()
 
         # NOTE: When we are saving the images here, the imwrite() function extracts the frame from the video
@@ -149,11 +148,27 @@ class StageClassifier:
             state += 1
 
             # TODO: Add a classfier for downswing!
-
-            # Get the frame before and after impact (will interpolate between these), this is going to be the fastest
-            # part of the swing.
-            current_trend = "up"
         if state == 3:
+            start_point = np.array([index, acc[index]])
+            end_point = np.array([np.argmax(acc), np.max(acc)])
+            # index = np.mean([start_point, end_point], axis=0)[0]
+            # points = np.linspace(start_point, end_point, 2, end_point=False)
+            # index = points[int(3 / 4 * 2)]  # Get point 3/4 the way
+
+            diff = end_point - start_point
+            point = start_point + (3 / 4) * diff  # Get the 3/4 marker
+            index = int(point[0])  # get index of this point
+            print(index)
+            self.video.set(cv.CAP_PROP_POS_FRAMES, index)
+            ret, frame = self.video.read()
+            # TODO: FInd out why it doesnt rotate on mac but does on windows
+            frame = cv.rotate(frame, cv.ROTATE_180)
+            cv.imwrite('swing_stages/downswing.jpg', frame)
+
+        # Get the frame before and after impact (will interpolate between these), this is going to be the fastest
+        # part of the swing.
+        current_trend = "up"
+        if state == 4:
             for i in range(index, len(acc)):
                 if acc[i] < acc[i - 1]:
                     current_trend = "down"
@@ -179,7 +194,7 @@ class StageClassifier:
 
             # Get the end of the follow through
             current_trend = "down"
-            if state == 4:
+            if state == 5:
                 for i in range(index, len(acc)):
                     if acc[i] > acc[i - 1]:
                         current_trend = "up"

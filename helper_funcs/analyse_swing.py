@@ -1,7 +1,10 @@
 # Required imports
+# Helper import
+
 import cv2 as cv
 import numpy as np
 
+from helper_funcs.ball_detector import detect
 from helper_funcs.graphing import GraphHelper as Graph
 # Custom class imports
 from helper_funcs.pose_estimation import AnalysePose
@@ -10,12 +13,12 @@ SETUP_FRAME = "swing_stages/setup.jpg"
 TAKEAWAY_FRAME = "swing_stages/takeaway.jpg"
 BACKSWING_FRAME = "swing_stages/backswing.jpg"
 # TODO: Add downswing vlassification
-# DOWNSWING_FRAME = "swing_stages/downswing.jpg"
+DOWNSWING_FRAME = "swing_stages/downswing.jpg"
 IMPACT_FRAME = "swing_stages/post-impact.jpg"
 # TODO: Add post impact and interpolate between values
 FOLLOWTHROUGH_FRAME = "swing_stages/followthrough.jpg"
 
-STAGE_PATH = [SETUP_FRAME, TAKEAWAY_FRAME, BACKSWING_FRAME, IMPACT_FRAME, FOLLOWTHROUGH_FRAME]
+STAGE_PATH = [SETUP_FRAME, TAKEAWAY_FRAME, BACKSWING_FRAME, DOWNSWING_FRAME, IMPACT_FRAME, FOLLOWTHROUGH_FRAME]
 
 draw = Graph()
 
@@ -79,7 +82,7 @@ def verify_one_piece_movement(pose, img):
     left_side_angle = calculate_angle(wrists[0], elbows[0], shoulders[0])
     right_side_angle = calculate_angle(wrists[1], elbows[1], shoulders[1])
 
-    if (-2 < left_side_angle < 0 and 0 < right_side_angle < 1):
+    if -2 < left_side_angle < 0 and 0 < right_side_angle < 1:
         print("In takeaway shoulders, wrists and elbows did not move as one")
     else:
         print("Good: One Piece Movement was correct")
@@ -101,6 +104,21 @@ def verify_followthrough_checks(pose, img):
         print("Good: Balance was maintained in follow through for the shoulder over foot check")
 
 
+def verify_head_behind_ball(pose, img):
+    # ball = detect(img)
+    ball = list(detect(img)[0])
+    head = pose.get_left_ear()
+
+    # draw.head_behind_ball(img, ball, head)
+
+    # Head should be behind the golf ball, hence subtract x values and if positive good
+    diff = head[0] - ball[0]
+    if diff < -5:  # allow slight margin as
+        print("In the downswing the users head is behind the golf ball by {} pixels".format(str(diff)))
+    else:
+        print("Good: Players head remained behind the golf ball allowing for solid contact")
+
+
 def run_setup_checks(img):  # img and frame here are interchangeable
     """
     Function to run the checks to be carried out in the swing setup.
@@ -111,7 +129,7 @@ def run_setup_checks(img):  # img and frame here are interchangeable
     pose = AnalysePose(img)
     # print(pose.results)
 
-    # draw.draw_pose_results(img, pose.results)
+    draw.draw_pose_results(img, pose.results)
     # Verify the legs are shoulder width apart
     verify_leg_width(pose, img)
 
@@ -136,6 +154,12 @@ def run_followthrough_checks(img):
     pose = AnalysePose(img)
 
     verify_followthrough_checks(pose, img)
+
+
+def run_downswing_checks(img):
+    pose = AnalysePose(img)
+
+    verify_head_behind_ball(pose, img)
 
 
 class SwingImageAnalyser:
@@ -172,8 +196,8 @@ class SwingImageAnalyser:
                 run_takeaway_checks(img)
             # elif path is BACKSWING_FRAME:
             #     run_backswing_checks(img)
-            # elif path is DOWNSWING_FRAME:
-            #     run_downswing_checks(img)
+            elif path is DOWNSWING_FRAME:
+                run_downswing_checks(img)
             # elif path is IMPACT_FRAME:
             #     # process the post impact frame aswell, may be better to do it here and avoid it being in the list
             #     run_impact_checks(img)

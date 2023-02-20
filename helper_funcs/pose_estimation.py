@@ -283,3 +283,6 @@ class AnalysePose:
         :return [left, right]:
         """
         return [self.results[2], self.results[3]]
+
+    def get_left_ear(self):
+        return self.results[14]

@@ -253,14 +253,15 @@ class GraphHelper:
     def show_graphs(self, data, t):
         # fig, ax = plt.subplots()
         # ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
-        #
+        # #
         # tempX = [val[0] for val in data.data['lw']]
         # tempY = [val[1] for val in data.data['lw']]
         # # TODO: t - val[1] seems to shove it below the y axis so fix this
         # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
         # curve, = plt.plot(tempX, tempY)
         # plt.scatter(tempX[0], tempY[0])
-
+        # plt.show()
+        #
         filtered = remove_outliers(data.data['lw'])  # Delete outlier points
         # tempX = [val[0] for val in filtered]
         # tempY = [val[1] for val in filtered]
@@ -276,14 +277,15 @@ class GraphHelper:
         # plt.plot(x_fit, y_fit, "r")
         # plt.show()
 
-        # TODO: Move this above, just want both graphs for cdev
+        # # TODO: Move this above, just want both graphs for cdev
         filled = estimate_missing_points(filtered)
+        # fig, ax = plt.subplots()
         # tempX = [val[0] for val in filled]
         # tempY = [val[1] for val in filled]
         # ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
-
-        self.set_processed_data(filled)
         #
+        self.set_processed_data(filled)
+        # #
         # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
         # curve, = plt.plot(tempX, tempY)
         # plt.scatter(tempX[0], tempY[0])
@@ -356,3 +358,21 @@ class GraphHelper:
         cv.line(temp, shoulder, foot, (255, 255, 0), 1)
 
         cv.imshow("Shoulder over foot check", temp)
+
+    def head_behind_ball(self, frame, ball, head):
+        """
+        Function to display head behind ball check
+        :param frame:
+        :param ball:
+        :param head:
+        :return:
+        """
+        temp = frame.copy()
+
+        # cv.ellipse(temp, ball, (0, 0, 255), 2)
+        cv.circle(temp, [int(ball[0]), int(ball[1])], 6, (0, 0, 255), -1)
+        cv.circle(temp, head, 6, (0, 0, 255), -1)
+
+        cv.line(temp, head, [int(ball[0]), int(ball[1])], (255, 255, 0), 1)
+
+        cv.imshow("Head behind ball check", temp)
