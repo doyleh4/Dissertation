@@ -1,14 +1,6 @@
 # required imports
-
 import cv2 as cv
 import numpy as np
-
-
-# helper imports
-
-
-# helper imports
-
 
 # def normalise(x, y, width, height):
 #     return [int(x * width), int(y * height)]

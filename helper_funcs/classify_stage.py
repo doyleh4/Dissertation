@@ -2,7 +2,10 @@ import math
 
 import cv2 as cv
 import numpy as np
+from matplotlib import pyplot as plt
 from scipy.signal import savgol_filter
+
+import config.config as config
 
 """
 NCode used for testing but not used in the end
@@ -15,6 +18,7 @@ NCode used for testing but not used in the end
         # plt.plot(y, slopes)
         # plt.show()
 """
+isMac = config.isMac()
 
 SETUP = 1
 TAKEAWAY = 2
@@ -75,8 +79,8 @@ class StageClassifier:
             # Save this frame as an image
             self.video.set(cv.CAP_PROP_POS_FRAMES, index - state)
             ret, frame = self.video.read()
-            # TODO: FInd out why it doesnt rotate on mac but does on windows
-            frame = cv.rotate(frame, cv.ROTATE_180)
+            if not isMac:
+                frame = cv.rotate(frame, cv.ROTATE_180)
             cv.imwrite('swing_stages/setup.jpg', frame)
             state += 1
 
@@ -92,11 +96,10 @@ class StageClassifier:
             index = indices[0]
 
             # Save this frame as an image
-            # TODO: FInd out why it doesnt rotate on mac but does on windows
             self.video.set(cv.CAP_PROP_POS_FRAMES, index - state)
             ret, frame = self.video.read()
-            # TODO: FInd out why it doesnt rotate on mac but does on windows
-            frame = cv.rotate(frame, cv.ROTATE_180)
+            if not isMac:
+                frame = cv.rotate(frame, cv.ROTATE_180)
             cv.imwrite('swing_stages/takeaway.jpg', frame)
             state += 1
 
@@ -123,8 +126,8 @@ class StageClassifier:
             # print("Next low index is {}".format(str(index)))
             self.video.set(cv.CAP_PROP_POS_FRAMES, index - state)
             ret, frame = self.video.read()
-            # TODO: FInd out why it doesnt rotate on mac but does on windows
-            frame = cv.rotate(frame, cv.ROTATE_180)
+            if not isMac:
+                frame = cv.rotate(frame, cv.ROTATE_180)
             cv.imwrite('swing_stages/backswing.jpg', frame)
 
             # # Write this as a video
@@ -141,8 +144,8 @@ class StageClassifier:
             #     # Read and write video between these frames
             #     self.video.set(cv.CAP_PROP_POS_FRAMES, i)
             #     ret, frame = self.video.read()
-            #     # TODO: Find out why it doesnt rotate on mac but does on windows
-            #     frame = cv.rotate(frame, cv.ROTATE_180)
+            #     if not isMac:
+            #         frame = cv.rotate(frame, cv.ROTATE_180)
             #     out.write(frame)
 
             state += 1
@@ -161,9 +164,10 @@ class StageClassifier:
             print(index)
             self.video.set(cv.CAP_PROP_POS_FRAMES, index)
             ret, frame = self.video.read()
-            # TODO: FInd out why it doesnt rotate on mac but does on windows
-            frame = cv.rotate(frame, cv.ROTATE_180)
+            if not isMac:
+                frame = cv.rotate(frame, cv.ROTATE_180)
             cv.imwrite('swing_stages/downswing.jpg', frame)
+            state += 1
 
         # Get the frame before and after impact (will interpolate between these), this is going to be the fastest
         # part of the swing.
@@ -180,16 +184,15 @@ class StageClassifier:
             # TODO: Why do we have to subtract a couple of frames here
             self.video.set(cv.CAP_PROP_POS_FRAMES, index - state)
             ret, frame = self.video.read()
-            # TODO: FInd out why it doesnt rotate on mac but does on windows
-            frame = cv.rotate(frame, cv.ROTATE_180)
+            if not isMac:
+                frame = cv.rotate(frame, cv.ROTATE_180)
             cv.imwrite('swing_stages/pre-impact.jpg', frame)
             # Save frame index after impact
             self.video.set(cv.CAP_PROP_POS_FRAMES, index - state + 1)  # +1 to get the frame after impact
             ret, frame = self.video.read()
-            # TODO: FInd out why it doesnt rotate on mac but does on windows
-            frame = cv.rotate(frame, cv.ROTATE_180)
+            if not isMac:
+                frame = cv.rotate(frame, cv.ROTATE_180)
             cv.imwrite('swing_stages/post-impact.jpg', frame)
-
             state += 1
 
             # Get the end of the follow through
@@ -205,7 +208,7 @@ class StageClassifier:
                 # Save this frame as an image
                 self.video.set(cv.CAP_PROP_POS_FRAMES, index - state)
                 ret, frame = self.video.read()
-                # TODO: FInd out why it doesnt rotate on mac but does on windows
-                frame = cv.rotate(frame, cv.ROTATE_180)
+                if not isMac:
+                    frame = cv.rotate(frame, cv.ROTATE_180)
                 cv.imwrite('swing_stages/followthrough.jpg', frame)
                 state += 1

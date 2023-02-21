@@ -194,8 +194,8 @@ class SwingImageAnalyser:
                 run_setup_checks(img)
             elif path is TAKEAWAY_FRAME:
                 run_takeaway_checks(img)
-            # elif path is BACKSWING_FRAME:
-            #     run_backswing_checks(img)
+            elif path is BACKSWING_FRAME:
+                run_backswing_checks(img)
             elif path is DOWNSWING_FRAME:
                 run_downswing_checks(img)
             # elif path is IMPACT_FRAME:

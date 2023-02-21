@@ -349,13 +349,16 @@ import sys
 
 import cv2 as cv
 
-from helper_funcs.analyse_swing import SwingImageAnalyser
-from helper_funcs.ball_detector import detect
-from helper_funcs.classify_stage import StageClassifier
 # Custom class imports
 from helper_funcs.data_record import DataRecord as Data
 from helper_funcs.graphing import GraphHelper as Graph
 from helper_funcs.pose_estimation import PoseEstimation as Pose
+from helper_funcs.analyse_swing import SwingImageAnalyser
+from helper_funcs.ball_detector import detect
+from helper_funcs.classify_stage import StageClassifier
+
+# Config Class Imports
+import config.config as config
 
 # Retrieve input file from run-time ram
 parser = argparse.ArgumentParser(description='This program shows how to improve a golf swing using OpenCV methods.')
@@ -384,6 +387,8 @@ draw = Graph()
 # Data recorded
 data = Data()
 
+isMac = config.isMac()
+
 temp = 0
 
 # Debug help
@@ -392,7 +397,7 @@ temp = 0
 # pause_at = [6, 12, 32, 46, 67]  # rough classifications
 
 
-pause_at = [33, 34, 35]
+pause_at = []
 
 
 def main_loop():
@@ -420,7 +425,8 @@ def main_loop():
         temp = frame.shape[1]
 
         # TODO: FInd out why it doesnt rotate on mac but does on windows
-        frame = cv.rotate(frame, cv.ROTATE_180)
+        if not isMac:
+            frame = cv.rotate(frame, cv.ROTATE_180)
 
         # Get pose estimation for frame
         # whole_pose = pose.predict_pose(frame)

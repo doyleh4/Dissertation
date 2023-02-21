@@ -13,7 +13,7 @@ import numpy as np
 # Custom classes
 from helper_funcs.pose_estimation import PoseEstimation as Pose
 
-debug = False
+debug = True
 
 # Test video
 # video_path = "../videos/sample/sample6.mov"
