@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.signal import savgol_filter
 
-import config.config as config
+import my_config.config as config
 
 """
 NCode used for testing but not used in the end
@@ -18,7 +18,8 @@ NCode used for testing but not used in the end
         # plt.plot(y, slopes)
         # plt.show()
 """
-isMac = config.isMac()
+# TODO: Get rid of not here only used for dev
+isMac = not config.isMac()
 
 SETUP = 1
 TAKEAWAY = 2
@@ -42,6 +43,10 @@ def calculate_acceleration(filled):
     res = savgol_filter(res, 30, 3)  # window size 30, polynomial order 6 - good for regular speed
     # res = savgol_filter(res, 180, 3)  # (expected shape, but bumpy) - good for slo-mo but needs more experimentation
     # res = savgol_filter(res, 12, 3)
+
+    # kernel_size = 7
+    # kernel = np.ones(kernel_size) / kernel_size
+    # res = np.convolve(res, kernel, mode='same')
     return res
 
 
@@ -54,11 +59,11 @@ class StageClassifier:
 
     def classify(self):
         acc = calculate_acceleration(self.data)
-        # y = np.arange(len(acc))
-        # plt.plot(y, acc)
-        #
-        # # TODO NOTE: This graph is the one that shows the classification curve of the acceleration. Needs to be in report
-        # plt.show()
+        y = np.arange(len(acc))
+        plt.plot(y, acc)
+
+        # TODO NOTE: This graph is the one that shows the classification curve of the acceleration. Needs to be in report
+        plt.show()
 
         # NOTE: When we are saving the images here, the imwrite() function extracts the frame from the video
         # hence we need to take this into account when indexing the video after an imwrite(). Hence the index - states

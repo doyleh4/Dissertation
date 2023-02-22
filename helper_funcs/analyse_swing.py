@@ -159,7 +159,7 @@ def run_followthrough_checks(img):
 def run_downswing_checks(img):
     pose = AnalysePose(img)
 
-    verify_head_behind_ball(pose, img)
+    # verify_head_behind_ball(pose, img)
 
 
 class SwingImageAnalyser:

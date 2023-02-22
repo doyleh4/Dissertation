@@ -349,16 +349,15 @@ import sys
 
 import cv2 as cv
 
+# Config Class Imports
+import my_config.config as config
 # Custom class imports
-from helper_funcs.data_record import DataRecord as Data
-from helper_funcs.graphing import GraphHelper as Graph
-from helper_funcs.pose_estimation import PoseEstimation as Pose
 from helper_funcs.analyse_swing import SwingImageAnalyser
 from helper_funcs.ball_detector import detect
 from helper_funcs.classify_stage import StageClassifier
-
-# Config Class Imports
-import config.config as config
+from helper_funcs.data_record import DataRecord as Data
+from helper_funcs.graphing import GraphHelper as Graph
+from helper_funcs.pose_estimation import PoseEstimation as Pose
 
 # Retrieve input file from run-time ram
 parser = argparse.ArgumentParser(description='This program shows how to improve a golf swing using OpenCV methods.')
@@ -387,7 +386,8 @@ draw = Graph()
 # Data recorded
 data = Data()
 
-isMac = config.isMac()
+# TODO: Get rid of not here only used for dev
+isMac = not config.isMac()
 
 temp = 0
 
@@ -397,7 +397,7 @@ temp = 0
 # pause_at = [6, 12, 32, 46, 67]  # rough classifications
 
 
-pause_at = []
+pause_at = [6, 20, 38, 48, 50, 51, 75]
 
 
 def main_loop():
