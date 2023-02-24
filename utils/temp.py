@@ -1,12 +1,13 @@
 import math
+import tqdm
 
 import cv2
 import numpy as np
 
 from helper_funcs.pose_estimation import PoseEstimation
 
-pause = [38]
-pause2 = [28]
+# pause = [38]
+# pause2 = [28]
 
 
 def find_stop_point(arr):
@@ -41,11 +42,11 @@ def calculate_acceleration(filled):
     return data_convolved_10
 
 
+pose = PoseEstimation()
+
 # Load the video file
 cap = cv2.VideoCapture('../videos/in_sync/a.MOV')
 cap2 = cv2.VideoCapture('../videos/in_sync/b.MOV')
-
-pose = PoseEstimation()
 
 arr = []
 arr2 = []
@@ -78,13 +79,13 @@ while cap.isOpened() or cap2.isOpened():
         arr.append([None, None])
         arr2.append([None, None])
 
-    if ret:
-        cv2.imshow("a", frame)
-    if ret2:
-        cv2.imshow("b", frame2)
+    # if ret:
+    #     cv2.imshow("a", frame)
+    # if ret2:
+    #     cv2.imshow("b", frame2)
 
-    f_no = cap.get(cv2.CAP_PROP_POS_FRAMES)
-    f_no2 = cap2.get(cv2.CAP_PROP_POS_FRAMES)
+    # f_no = cap.get(cv2.CAP_PROP_POS_FRAMES)
+    # f_no2 = cap2.get(cv2.CAP_PROP_POS_FRAMES)
 
     # if f_no in pause or f_no2 in pause2:
     #     print(f_no in pause)
@@ -92,7 +93,7 @@ while cap.isOpened() or cap2.isOpened():
     #     cv2.waitKey()
 
     # Display the frame in a window called "video"
-    cv2.waitKey(1)
+    cv2.waitKey(10)
 
 # Release the video capture object and close the window
 cap.release()
@@ -145,17 +146,19 @@ fps = int(cap.get(cv2.CAP_PROP_FPS))
 
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
-out = cv2.VideoWriter("swing-a.mp4", fourcc, fps, (width, height))
-out2 = cv2.VideoWriter("swing-b.mp4", fourcc, fps, (width, height))
-#
-for i in range(a - 40, a + 40):
+out = cv2.VideoWriter("synced-a.mp4", fourcc, fps, (width, height))
+out2 = cv2.VideoWriter("synced-b.mp4", fourcc, fps, (width, height))
+
+print("First video")
+for i in tqdm.tqdm(range(a - 40, a + 40)):
     # Read and write video between these frames
     cap.set(cv2.CAP_PROP_POS_FRAMES, i)
     ret, frame = cap.read()
     frame = cv2.rotate(frame, cv2.ROTATE_180)
     out.write(frame)
 
-for i in range(b - 40, b + 40):
+print("Second video")
+for i in tqdm.tqdm(range(b - 40, b + 40)):
     # Read and write video between these frames
     cap2.set(cv2.CAP_PROP_POS_FRAMES, i)
     ret, frame = cap2.read()
@@ -165,12 +168,20 @@ for i in range(b - 40, b + 40):
 out.release()
 out2.release()
 
+cap.release()
+cap2.release()
+
 print("Allowing time for videos to save")
+
 # time.sleep(30)
 
 # Load the synced videos
-cap = cv2.VideoCapture('swing-a.mp4')
-cap2 = cv2.VideoCapture('swing-b.mp4')
+cap = cv2.VideoCapture('synced-a.mp4')
+cap2 = cv2.VideoCapture('synced-b.mp4')
+
+pose = PoseEstimation()
+
+arr = []
 
 # Loop through each frame of the video
 while cap.isOpened() or cap2.isOpened():
@@ -183,18 +194,18 @@ while cap.isOpened() or cap2.isOpened():
         break
 
     frame = cv2.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
-    # frame = cv2.rotate(frame, cv2.ROTATE_180)
+    frame = cv2.rotate(frame, cv2.ROTATE_180)
 
     frame2 = cv2.resize(frame2, (int(frame2.shape[1] / 2.5), int(frame2.shape[0] / 2.5)))
-    # frame2 = cv2.rotate(frame2, cv2.ROTATE_180)
+    frame2 = cv2.rotate(frame2, cv2.ROTATE_180)
 
-    try:
-        arr.append(pose.get_left_wrist(frame))
-        arr2.append(pose.get_left_wrist(frame2))
-    except:
-        print("Failure to find left wrist in frame")
-        arr.append([None, None])
-        arr2.append([None, None])
+    # try:
+    #     arr.append(pose.get_left_wrist(frame))
+    #     arr2.append(pose.get_left_wrist(frame2))
+    # except:
+    #     print("Failure to find left wrist in frame")
+    #     arr.append([None, None])
+    #     arr2.append([None, None])
 
     if ret:
         cv2.imshow("a", frame)
@@ -202,4 +213,4 @@ while cap.isOpened() or cap2.isOpened():
         cv2.imshow("b", frame2)
 
     # Display the frame in a window called "video"
-    cv2.waitKey(1)
+    cv2.waitKey(20)

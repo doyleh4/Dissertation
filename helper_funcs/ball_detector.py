@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-template = cv.imread("template.JPG")
+# template = cv.imread("template.JPG")
 
 
 def detect(frame):

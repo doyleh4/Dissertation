@@ -9,14 +9,13 @@ from helper_funcs.graphing import GraphHelper as Graph
 # Custom class imports
 from helper_funcs.pose_estimation import AnalysePose
 
-SETUP_FRAME = "swing_stages/setup.jpg"
-TAKEAWAY_FRAME = "swing_stages/takeaway.jpg"
-BACKSWING_FRAME = "swing_stages/backswing.jpg"
-# TODO: Add downswing vlassification
-DOWNSWING_FRAME = "swing_stages/downswing.jpg"
-IMPACT_FRAME = "swing_stages/post-impact.jpg"
+SETUP_FRAME = "swing_stages/face_on/setup.jpg"
+TAKEAWAY_FRAME = "swing_stages/face_on/takeaway.jpg"
+BACKSWING_FRAME = "swing_stages/face_on/backswing.jpg"
+DOWNSWING_FRAME = "swing_stages/face_on/downswing.jpg"
+IMPACT_FRAME = "swing_stages/face_on/post-impact.jpg"
 # TODO: Add post impact and interpolate between values
-FOLLOWTHROUGH_FRAME = "swing_stages/followthrough.jpg"
+FOLLOWTHROUGH_FRAME = "swing_stages/face_on/followthrough.jpg"
 
 STAGE_PATH = [SETUP_FRAME, TAKEAWAY_FRAME, BACKSWING_FRAME, DOWNSWING_FRAME, IMPACT_FRAME, FOLLOWTHROUGH_FRAME]
 

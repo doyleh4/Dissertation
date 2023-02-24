@@ -358,6 +358,7 @@ from helper_funcs.classify_stage import StageClassifier
 from helper_funcs.data_record import DataRecord as Data
 from helper_funcs.graphing import GraphHelper as Graph
 from helper_funcs.pose_estimation import PoseEstimation as Pose
+from helper_funcs.sync_videos import Synchronizer
 
 # Retrieve input file from run-time ram
 parser = argparse.ArgumentParser(description='This program shows how to improve a golf swing using OpenCV methods.')
@@ -387,7 +388,7 @@ draw = Graph()
 data = Data()
 
 # TODO: Get rid of not here only used for dev
-isMac = not config.isMac()
+isMac = config.isMac()
 
 temp = 0
 
@@ -397,7 +398,8 @@ temp = 0
 # pause_at = [6, 12, 32, 46, 67]  # rough classifications
 
 
-pause_at = [6, 20, 38, 48, 50, 51, 75]
+# pause_at = [6, 20, 38, 48, 50, 51, 75]
+pause_at = []
 
 
 def main_loop():
@@ -424,7 +426,6 @@ def main_loop():
         global temp
         temp = frame.shape[1]
 
-        # TODO: FInd out why it doesnt rotate on mac but does on windows
         if not isMac:
             frame = cv.rotate(frame, cv.ROTATE_180)
 
@@ -467,45 +468,58 @@ def main_loop():
             print(slomo)
         if keyboard == 113:  # 113 is "q"
             sys.exit(0)
+    cv.destroyAllWindows()
 
-    # # Process other Down the Line view
-    # while dtl_view.isOpened():
-    #     if slomo:
-    #         cv.waitKey(200)
-    #     ret, frame = dtl_view.read()
-    #
-    #     # if frame is read correctly ret is True
-    #     if not ret:
-    #         print("Can't receive frame (stream end?). Exiting ...")
-    #         break
-    #
-    #     frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
-    #     frame = cv.rotate(frame, cv.ROTATE_180)
-    #
-    #     ball = detect(frame)
-    #
-    #     # Get relevant pose features
-    #     results = pose.predict_dtl_pose(frame)
-    #     draw.draw_pose_results(frame, results)
-    #
-    #     draw.draw_dtl_checks(frame, results, ball)
-    #
-    #     # data.store_frame_data(results)
-    #
-    #     # TODO: Parse video to drop irrelevant frames
-    #
-    #     cv.imshow('Frame', frame)
-    #     keyboard = cv.waitKey(1)
-    #     if keyboard == 115:  # 115 is "s"
-    #         slomo = not slomo
-    #         cv.waitKey(10000)
-    #         print(slomo)
-    #
-    #     if keyboard == 113:  # 113 is "q"
-    #         sys.exit(0)
+    # Process Down the Line view
+    while dtl_view.isOpened():
+        if slomo:
+            cv.waitKey(200)
+        ret, frame = dtl_view.read()
+
+        # if frame is read correctly ret is True
+        if not ret:
+            print("Can't receive frame (stream end?). Exiting ...")
+            break
+
+        frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
+        if not isMac:
+            frame = cv.rotate(frame, cv.ROTATE_180)
+
+        ball = detect(frame)
+
+        # Get relevant pose features
+        try:
+            results = pose.predict_dtl_pose(frame)
+        except:
+            print("Pose results were NONE on frame")
+        draw.draw_pose_results(frame, results)
+
+        draw.draw_dtl_checks(frame, results, ball)
+
+        # data.store_frame_data(results)
+
+        # TODO: Parse video to drop irrelevant frames
+
+        cv.imshow('Frame', frame)
+        keyboard = cv.waitKey(1)
+        if keyboard == 115:  # 115 is "s"
+            slomo = not slomo
+            cv.waitKey(10000)
+            print(slomo)
+
+        if keyboard == 113:  # 113 is "q"
+            sys.exit(0)
+    cv.destroyAllWindows()
 
 
 if __name__ == "__main__":
+    # Synchornise the 2 angles of the videos.
+    sync = Synchronizer(frontal_view, dtl_view)
+    sync.main()
+
+    frontal_view = cv.VideoCapture('videos/synced/synced-a.mp4')
+    dtl_view = cv.VideoCapture('videos/synced/synced-b.mp4')
+
     # play the video, main loop
     main_loop()
     # TODO: Graph tracking at end of video
@@ -513,8 +527,9 @@ if __name__ == "__main__":
 
     acc = draw.get_processed_data()  # Get the acceleration of the hands as the smoothened curve
     print("Video is being classified for its stages")
-    classifier = StageClassifier(acc, frontal_view)
+    classifier = StageClassifier(acc, frontal_view, dtl_view)
     classifier.classify()
+
 
     # TODO: Analyse these relevant "frames" and preform checks
     print("Analysing the inputted video for corrections")
