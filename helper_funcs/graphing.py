@@ -2,6 +2,7 @@
 import cv2 as cv
 import numpy as np
 
+
 # def normalise(x, y, width, height):
 #     return [int(x * width), int(y * height)]
 def smooth_line(points, window_size=5):
@@ -320,7 +321,6 @@ class GraphHelper:
         cv.imshow("Leg check", temp)
         cv.imwrite("checks/face_on/leg_width.jpg", temp)
 
-
     def one_piece_movement_check(self, frame, wrists, elbows, shoulders):
         """
         Display the arms and shoulders moving together
@@ -340,7 +340,6 @@ class GraphHelper:
         cv.imshow("OPM check", temp)
         cv.imwrite("checks/face_on/one_piece_movement.jpg", temp)
 
-
     def shoulder_over_foot(self, frame, shoulder, foot):
         """
         Dispaly the shoulder foot location in the followthrough
@@ -355,7 +354,6 @@ class GraphHelper:
 
         cv.imshow("Shoulder over foot check", temp)
         cv.imwrite("checks/face_on/shoulder_over_foot.jpg", temp)
-
 
     def head_behind_ball(self, frame, ball, head):
         """
@@ -376,3 +374,72 @@ class GraphHelper:
         cv.imshow("Head behind ball check", temp)
         cv.imwrite("checks/face_on/head_behind_ball.jpg", temp)
 
+    def knee_angle(self, frame, ankle, knee, hip, stage):
+        """
+        Function to display head behind ball check
+        :param frame:
+        :param ankle:
+        :param knee:
+        :param hip:
+        :return:
+        """
+        temp = frame.copy()
+
+        cv.circle(temp, ankle, 6, (0, 0, 255), -1)
+        cv.circle(temp, knee, 6, (0, 0, 255), -1)
+        cv.circle(temp, hip, 6, (0, 0, 255), -1)
+
+        cv.line(temp, ankle, knee, (255, 0, 0), 3)
+        cv.line(temp, knee, hip, (255, 0, 0), 3)
+
+        cv.imshow("Knee angle check", temp)
+        cv.imwrite("checks/dtl/{}_knee_angle.jpg".format(stage), temp)
+
+    def trail_arm_straight(self, frame, wrist, elbow, shoulder):
+        temp = frame.copy()
+
+        cv.circle(temp, wrist, 6, (0, 0, 255), -1)
+        cv.circle(temp, elbow, 6, (0, 0, 255), -1)
+        cv.circle(temp, shoulder, 6, (0, 0, 255), -1)
+
+        cv.line(temp, wrist, elbow, (255, 0, 0), 3)
+        cv.line(temp, elbow, shoulder, (255, 0, 0), 3)
+
+        cv.imshow("Train arm straight check", temp)
+        cv.imwrite("checks/dtl/trail_arm_straight.jpg", temp)
+
+    def shoulder_slope(self, frame, shoulders):
+        temp = frame.copy()
+
+        # TODO: Again this is a check to see the left arm plane (inline with shoulder slope), not just shoulder slope
+        cv.circle(temp, shoulders[0], 6, (0, 0, 255), -1)
+        cv.circle(temp, shoulders[1], 6, (0, 0, 255), -1)
+
+        cv.line(temp, shoulders[0], shoulders[1], (255, 0, 0), 3)
+
+        cv.imshow("Left arm in same plane as shoulders", temp)
+        cv.imwrite("checks/dtl/left_arm_plane.jpg", temp)
+
+    def elbow_pointing_down(self, frame, elbow, shoulder):
+        temp = frame.copy()
+
+        # TODO: Again this is a check to see the left arm plane (inline with shoulder slope), not just shoulder slope
+        cv.circle(temp, shoulder, 6, (0, 0, 255), -1)
+        cv.circle(temp, elbow, 6, (0, 0, 255), -1)
+
+        cv.arrowedLine(temp, shoulder, elbow, (255, 0, 0), 3)
+
+        cv.imshow("Trail elbow pointing down", temp)
+        cv.imwrite("checks/dtl/elbow_pointing_down.jpg", temp)
+    def shoulders_closed(self, frame, shoulders):
+        # Very similar to shoulder slope above so maybe change
+        temp = frame.copy()
+
+        # TODO: Again this is a check to see the left arm plane (inline with shoulder slope), not just shoulder slope
+        cv.circle(temp, shoulders[0], 6, (0, 0, 255), -1)
+        cv.circle(temp, shoulders[1], 6, (0, 0, 255), -1)
+
+        cv.line(temp, shoulders[0], shoulders[1], (255, 0, 0), 3)
+
+        cv.imshow("Shoulders slightly closed", temp)
+        cv.imwrite("checks/dtl/shoulders_closed.jpg", temp)

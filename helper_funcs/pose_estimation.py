@@ -286,3 +286,21 @@ class AnalysePose:
 
     def get_left_ear(self):
         return self.results[14]
+
+    def get_right_ankle(self):
+        return self.results[11]
+
+    def get_right_knee(self):
+        return self.results[9]
+
+    def get_right_hip(self):
+        return self.results[7]
+
+    def get_right_wrist(self):
+        return self.results[1]
+
+    def get_right_elbow(self):
+        return self.results[3]
+
+    def get_right_shoulder(self):
+        return self.results[5]
