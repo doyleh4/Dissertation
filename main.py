@@ -355,10 +355,10 @@ import my_config.config as config
 from helper_funcs.analyse_swing import SwingImageAnalyser
 from helper_funcs.ball_detector import detect
 from helper_funcs.classify_stage import StageClassifier
-from helper_funcs.data_record import DataRecord as Data
+from helper_funcs.data_record import DTLDataRecord as DTLData
+from helper_funcs.data_record import FODataRecord as FOData
 from helper_funcs.graphing import GraphHelper as Graph
 from helper_funcs.pose_estimation import PoseEstimation as Pose
-from helper_funcs.sync_videos import Synchronizer
 
 # Retrieve input file from run-time ram
 parser = argparse.ArgumentParser(description='This program shows how to improve a golf swing using OpenCV methods.')
@@ -385,7 +385,8 @@ pose = Pose()
 draw = Graph()
 
 # Data recorded
-data = Data()
+fo_data = FOData()
+dtl_data = DTLData()
 
 # TODO: Get rid of not here only used for dev
 isMac = config.isMac()
@@ -399,6 +400,7 @@ temp = 0
 
 
 # pause_at = [6, 20, 38, 48, 50, 51, 75]
+# pause_at = [9, 21, 41, 47, 48, 53, 80]
 pause_at = []
 
 
@@ -426,8 +428,8 @@ def main_loop():
         global temp
         temp = frame.shape[1]
 
-        if not isMac:
-            frame = cv.rotate(frame, cv.ROTATE_180)
+        # if not isMac:
+        #     frame = cv.rotate(frame, cv.ROTATE_180)
 
         # Get pose estimation for frame
         # whole_pose = pose.predict_pose(frame)
@@ -447,7 +449,7 @@ def main_loop():
 
         draw.draw_expanded(frame, results, ball)
 
-        data.store_frame_data(results)
+        fo_data.store_frame_data(results)
 
         # temp = detect(frame)
 
@@ -481,22 +483,29 @@ def main_loop():
             print("Can't receive frame (stream end?). Exiting ...")
             break
 
+        frame_num = dtl_view.get(cv.CAP_PROP_POS_FRAMES)
+
+        if frame_num in pause_at:
+            cv.waitKey()
+
         frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
-        if not isMac:
-            frame = cv.rotate(frame, cv.ROTATE_180)
+        # if not isMac:
+        #     frame = cv.rotate(frame, cv.ROTATE_180)
 
         ball = detect(frame)
 
         # Get relevant pose features
-        try:
-            results = pose.predict_dtl_pose(frame)
-        except:
-            print("Pose results were NONE on frame")
+        # TODO update this to only fill in NONE where the landmark is NONE (instead of the entire result)
+        # try:
+        #     results = pose.predict_dtl_pose(frame)
+        # except:
+        #     print("Pose results were NONE on frame")
+        results = pose.predict_dtl_pose(frame)
         draw.draw_pose_results(frame, results)
 
         draw.draw_dtl_checks(frame, results, ball)
 
-        # data.store_frame_data(results)
+        dtl_data.store_frame_data(results)
 
         # TODO: Parse video to drop irrelevant frames
 
@@ -514,8 +523,9 @@ def main_loop():
 
 if __name__ == "__main__":
     # Synchornise the 2 angles of the videos.
-    sync = Synchronizer(frontal_view, dtl_view)
-    sync.main()
+    # TODO: Uncomment this and change to parser not sync
+    # sync = Synchronizer(frontal_view, dtl_view)
+    # sync.main()
 
     frontal_view = cv.VideoCapture('videos/synced/synced-a.mp4')
     dtl_view = cv.VideoCapture('videos/synced/synced-b.mp4')
@@ -523,13 +533,14 @@ if __name__ == "__main__":
     # play the video, main loop
     main_loop()
     # TODO: Graph tracking at end of video
-    draw.show_graphs(data, temp)
+    draw.show_graphs(fo_data, dtl_data, temp)
 
-    acc = draw.get_processed_data()  # Get the acceleration of the hands as the smoothened curve
+    # Get the acceleration curves for the different views for the stage classification
+    acc = draw.get_processed_fo_data()
+    acc2 = draw.get_processed_dtl_data()
     print("Video is being classified for its stages")
-    classifier = StageClassifier(acc, frontal_view, dtl_view)
+    classifier = StageClassifier(acc, acc2, frontal_view, dtl_view)
     classifier.classify()
-
 
     # TODO: Analyse these relevant "frames" and preform checks
     print("Analysing the inputted video for corrections")

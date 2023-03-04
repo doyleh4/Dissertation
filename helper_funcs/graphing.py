@@ -1,6 +1,12 @@
 # required imports
+import math
+
 import cv2 as cv
 import numpy as np
+from matplotlib import pyplot as plt
+
+
+# from helper_funcs.classify_stage import calculate_acceleration
 
 
 # def normalise(x, y, width, height):
@@ -119,19 +125,41 @@ def estimate_missing_points(points):
     return points
 
 
+def calculate_acceleration(filled):
+    acc = []
+    if len(filled) > 1:
+        for index in range(1, len(filled)):
+            p1 = filled[index]
+            p2 = filled[index - 1]
+            dist = math.dist(p1, p2)
+            acc.append(dist)
+
+    return acc
+
+
 class GraphHelper:
     """
         Class to do graphing functions
     """
 
     def __init__(self):
-        self.processed_data = None
+        """
+        These attributes will store the processed data.
+        """
+        self.proc_fo_data = None
+        self.proc_dtl_data = None
 
-    def set_processed_data(self, data):
-        self.processed_data = data
+    def set_processed_fo_data(self, data):
+        self.proc_fo_data = data
 
-    def get_processed_data(self):
-        return self.processed_data
+    def get_processed_fo_data(self):
+        return self.proc_fo_data
+
+    def set_processed_dtl_data(self, data):
+        self.proc_dtl_data = data
+
+    def get_processed_dtl_data(self):
+        return self.proc_dtl_data
 
     def draw_pose_results(self, frame, points):
         """
@@ -243,12 +271,12 @@ class GraphHelper:
 
         cv.imshow("Expanded checks", temp)
 
-    def show_graphs(self, data, t):
+    def show_graphs(self, data, dtl_data, t):
         # fig, ax = plt.subplots()
         # ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
         # #
-        # tempX = [val[0] for val in data.data['lw']]
-        # tempY = [val[1] for val in data.data['lw']]
+        # tempX = [val[0] for val in dtl_data.r_wrist]
+        # tempY = [val[1] for val in dtl_data.r_wrist]
         # # TODO: t - val[1] seems to shove it below the y axis so fix this
         # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
         # curve, = plt.plot(tempX, tempY)
@@ -256,8 +284,9 @@ class GraphHelper:
         # plt.show()
         #
         filtered = remove_outliers(data.data['lw'])  # Delete outlier points
-        # tempX = [val[0] for val in filtered]
-        # tempY = [val[1] for val in filtered]
+        filtered2 = remove_outliers(dtl_data.r_wrist)
+        # tempX = [val[0] for val in filtered2]
+        # tempY = [val[1] for val in filtered2]
         # # TODO: t - val[1] seems to shove it below the y axis so fix this
         # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
         # curve, = plt.plot(tempX, tempY)
@@ -272,12 +301,43 @@ class GraphHelper:
 
         # # TODO: Move this above, just want both graphs for cdev
         filled = estimate_missing_points(filtered)
+        filled2 = estimate_missing_points(filtered2)
         # fig, ax = plt.subplots()
-        # tempX = [val[0] for val in filled]
-        # tempY = [val[1] for val in filled]
+        # tempX = [val[0] for val in filled2]
+        # tempY = [val[1] for val in filled2]
         # ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
+
+        # Calulate these accelerations
+        acceleration = calculate_acceleration(filled)
+        acceleration2 = calculate_acceleration(filled2)
+
+        # Display these acceleration graphs
+        # y = np.arange(len(acceleration))
+        # plt.plot(y, acceleration, label="Face on")
         #
-        self.set_processed_data(filled)
+        # y = np.arange(len(acceleration2))
+        # plt.plot(y, acceleration2, label="Down the line")
+        # plt.legend()
+        # plt.show()
+
+        # tempX = [val[0] for val in filtered2]
+        # tempY = [val[1] for val in filtered2]
+        # # TODO: t - val[1] seems to shove it below the y axis so fix this
+        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        # curve, = plt.plot(tempX, tempY)
+        # plt.scatter(tempX[0], tempY[0])
+
+        # tempX = [val[0] for val in filtered2]
+        # tempY = [val[1] for val in filtered2]
+        # # TODO: t - val[1] seems to shove it below the y axis so fix this
+        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        # curve, = plt.plot(tempX, tempY)
+        # plt.scatter(tempX[0], tempY[0])
+
+        plt.show()
+
+        self.set_processed_fo_data(acceleration)
+        self.set_processed_dtl_data(acceleration2)
         # #
         # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
         # curve, = plt.plot(tempX, tempY)
@@ -431,6 +491,7 @@ class GraphHelper:
 
         cv.imshow("Trail elbow pointing down", temp)
         cv.imwrite("checks/dtl/elbow_pointing_down.jpg", temp)
+
     def shoulders_closed(self, frame, shoulders):
         # Very similar to shoulder slope above so maybe change
         temp = frame.copy()

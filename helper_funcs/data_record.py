@@ -1,7 +1,7 @@
 import math
 
 
-class DataRecord:
+class FODataRecord:
     """
         Class to provide data storage functionality
     """
@@ -34,7 +34,14 @@ class DataRecord:
             dist = math.dist(self.data["lw"][len(self.data["lw"]) - 2], self.data["lw"][len(self.data["lw"]) - 1])
             self.data["acc"].append(dist)
             # self.data["acc"].append(
-            #     # self.data["lw"][len(self.data["lw"]) - 2] - self.data["lw"][
-            #     #     len(self.data["lw"]) - 1] / 0.6)  # formula for acceleration 0.6 is frame rate 60 fps
-            #     math.sqrt()
-            # )
+            # self.data["lw"][len(self.data["lw"]) - 2] - self.data["lw"][
+            #     len(self.data["lw"]) - 1] / 0.6)  # formula for acceleration 0.6 is frame rate 60 fps
+            # math.sqrt()
+
+
+class DTLDataRecord:
+    def __init__(self):
+        self.r_wrist = []
+
+    def store_frame_data(self, pose_data):
+        self.r_wrist.append(pose_data[5])
