@@ -100,8 +100,23 @@ class PoseEstimation:
     # TODO: Get mask of person segmentation and return that
     def segmentation(self, frame):
         seg_pose = self.mpPose.Pose(enable_segmentation=True)
-        mask = seg_pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        return mask
+        frame_small = frame.copy()
+        frame_small = cv2.resize(frame_small, (frame_small.shape[1], frame_small.shape[0]))
+        results = seg_pose.process(cv2.cvtColor(frame_small, cv2.COLOR_BGR2RGB))
+
+        annotated_image = frame_small.copy()
+        # Draw segmentation on the image.
+        # To improve segmentation around boundaries, consider applying a joint
+        # bilateral filter to "results.segmentation_mask" with "image".
+        condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > 0.1
+        bg_image = np.zeros(frame_small.shape, dtype=np.uint8)
+        bg_image[:] = (0, 0, 0)  # gray
+        annotated_image = np.where(condition, annotated_image, bg_image)
+
+        cv2.imshow("Segmentation", annotated_image)
+        cv2.waitKey()
+
+        return annotated_image
 
     # TODO: Could change this to be less repetitive (i.e. calculate the pose once)
 
@@ -304,3 +319,9 @@ class AnalysePose:
 
     def get_right_shoulder(self):
         return self.results[5]
+
+    def get_left_wrist(self):
+        return self.results[0]
+
+    def get_left_elbow(self):
+        return self.results[2]

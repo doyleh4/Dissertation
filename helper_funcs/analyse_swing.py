@@ -4,9 +4,9 @@
 import cv2 as cv
 import numpy as np
 
+# Custom class imports
 from helper_funcs.ball_detector import detect
 from helper_funcs.graphing import GraphHelper as Graph
-# Custom class imports
 from helper_funcs.pose_estimation import AnalysePose
 
 SETUP_FRAME = ("swing_stages/face_on/setup.jpg", "swing_stages/dtl/setup.jpg")
@@ -21,6 +21,8 @@ STAGE_PATH = [SETUP_FRAME, TAKEAWAY_FRAME, BACKSWING_FRAME, DOWNSWING_FRAME, IMP
 
 draw = Graph()
 
+setup_knee_angle = 0
+
 
 # TODO: Change all measurements here to be body to pixel ratio.
 # TODO: Add docstring everwhere here
@@ -34,9 +36,11 @@ def calculate_angle(main, a, b):
     # Calculate and return angle
     return np.degrees(np.arctan2(np.linalg.det([v1, v2]), np.dot(v1, v2)))
 
+
 def calculate_slope(a, b):
     """ Calcuates the slope from a -> b"""
-    return (b[1]-a[1])/(b[0]-a[0])
+    return (b[1] - a[1]) / (b[0] - a[0])
+
 
 def verify_leg_width(pose, img):
     """
@@ -56,15 +60,17 @@ def verify_leg_width(pose, img):
     left = ankles[0][0] - shoulders[0][0]
     right = ankles[1][0] - shoulders[1][0]
 
+    # These have to be formatted weird as we want most of them to be checked
     if left > 5:  # Margin for acceptance
         print("In setup users left ankle is {} pixels infront of their shoulders".format(str(left)))
     elif left < -5:  # Margin for acceptance
         print("In setup users left ankle is {} pixels behind of their shoulders".format(str(left)))
-
     if right > 5:  # Margin for acceptance
         print("In setup users right ankle is {} pixels infront of their shoulders".format(str(right)))
     elif right < -5:  # Margin for acceptance
         print("In setup users right ankle is {} pixels behind of their shoulders".format(str(right)))
+    if -5 < left < 5 and -5 < right < 5:
+        print("Good: In setup the players left and right ankle is below their left and right shoulder")
 
 
 def verify_one_piece_movement(pose, img):
@@ -106,6 +112,8 @@ def verify_followthrough_checks(pose, img):
     else:
         print("Good: Balance was maintained in follow through for the shoulder over foot check")
 
+    # TODO: Add in the check to see if the trail foot is lifteed off the ground.
+
 
 def verify_head_behind_ball(pose, img):
     # ball = detect(img)
@@ -127,12 +135,29 @@ def verify_knee_angle(pose, img, name):
     knee = pose.get_right_knee()
     hip = pose.get_right_hip()
 
-    # TODO: Verify this angle is being done correctly
-    angle = calculate_angle(knee, hip, ankle)
+    angle = calculate_angle(knee, ankle, hip)
 
     # TODO add angle check feedback. NOTE: Remember this is used in the downswing check aswell, so have it work for both
-
     draw.knee_angle(img, ankle, knee, hip, name)
+
+    if 150 < angle < 160:
+        print("Good: In the setup the knee angle is setup to maintain balance")
+    elif angle < 150:
+        print("In the setup the players knee is bent too much")
+    elif angle > 160:
+        print("In the setup the players knee is not bent enough")
+
+    # Also as part of this we need to check that the users knee is directly above the foot. (not forward or backward)
+    temp = [knee[0], knee[1] + 10]  # Get a point directly below the knee
+    setup_knee_angle = temp
+    angle = calculate_angle(knee, ankle, temp)
+
+    if -2 < angle < 2:
+        print("Good: In setup the players knee is directly above their ankle to maintain balance")
+    elif angle < -2:
+        print("In setup the players knee is too far ahead of their ankle")
+    elif angle > 2:
+        print("In setup the players knee is behind their ankle")
 
 
 def verify_trail_arm_straight(pose, dtl_img):
@@ -143,6 +168,11 @@ def verify_trail_arm_straight(pose, dtl_img):
     angle = calculate_angle(elbow, shoulder, wrist)
 
     draw.trail_arm_straight(dtl_img, wrist, elbow, shoulder)
+
+    if 175 < angle < 185:
+        print("Good: In takeaway the players trail arm was straight so lead the swing on right axis")
+    else:
+        print("In takeaway the players hand was not straight")
 
 
 def run_setup_checks(fo_img, dtl_img):  # img and frame here are interchangeable
@@ -178,12 +208,17 @@ def run_takeaway_checks(fo_img, dtl_img):
 
 
 def verify_shoulder_slope(pose, dtl_img):
-    # TODO: This check isnt shoulder slope, its to check if the left arm is ion the same plane as the shoulders
-    #  so add this to the check
     shoulders = pose.get_shoulders()
+    arm = [pose.get_left_wrist(), pose.get_left_elbow()]
 
     slope = calculate_slope(shoulders[0], shoulders[1])
-    draw.shoulder_slope(dtl_img, shoulders)
+    slope2 = calculate_slope(arm[0], arm[1])
+    draw.shoulder_slope(dtl_img, shoulders, arm)
+
+    if slope2 - .35 < slope < slope2 + .35:
+        print("Good: The players shoulders and lead arm are on the same plane in the backswing")
+    else:
+        print("In the backswing, the players shoulders and lead arm is noot in the same plane")
 
 
 def verify_elbow_pointing_down(pose, dtl_img):
@@ -209,6 +244,13 @@ def verify_shoulders_closed(pose, img):
     # Add check for slope value that shows slightly closed (negative but approx 0)
     draw.shoulders_closed(img, shoulders)
 
+    if 0.1 < slope < 0.3:
+        print("Good: In the downswing, the players shoulders are closed properly so the swing has stayed on plane")
+    elif slope < 0.1:
+        print("In the downswing, the players shoulders were open")
+    elif slope > 0.3:
+        print("In the downswing, the players shoulders were too far closed")
+
 
 def run_backswing_checks(fo_img, dtl_img):
     # Add in a way to check the back is facing the target
@@ -224,9 +266,10 @@ def run_backswing_checks(fo_img, dtl_img):
 def run_downswing_checks(fo_img, dtl_img):
     pose = AnalysePose(fo_img)
 
+    # TODO: Uncomment when we get a new video with a ball
     # verify_head_behind_ball(pose, fo_img)
 
-    #Down the line checks
+    # Down the line checks
     pose = AnalysePose(dtl_img)
     verify_knee_angle(pose, dtl_img, "downswing")
     verify_shoulders_closed(pose, dtl_img)
@@ -241,14 +284,14 @@ def run_followthrough_checks(fo_img, dtl_img):
     pose = AnalysePose(fo_img)
 
     verify_followthrough_checks(pose, fo_img)
-
-    # TODO: The above is only to check if the head is above the left foot, add in the right foot of the ground from
-    #  both views?
+    # Note: We do not need to preform the DTL checks here as the check is the same as one of the FO checks
 
 
 class SwingImageAnalyser:
     """
-        Class to provide SwingAnalysis when we have the images not video
+        Class to provide SwingAnalysis when we have the images not video. This will also operate on neutral
+        feedback loop, telling the user what is wrong in their swing. This will be used as input into the
+        advice system.
     """
 
     # def __init__(self):

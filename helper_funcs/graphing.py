@@ -468,14 +468,18 @@ class GraphHelper:
         cv.imshow("Train arm straight check", temp)
         cv.imwrite("checks/dtl/trail_arm_straight.jpg", temp)
 
-    def shoulder_slope(self, frame, shoulders):
+    def shoulder_slope(self, frame, shoulders, arm):
         temp = frame.copy()
 
-        # TODO: Again this is a check to see the left arm plane (inline with shoulder slope), not just shoulder slope
         cv.circle(temp, shoulders[0], 6, (0, 0, 255), -1)
         cv.circle(temp, shoulders[1], 6, (0, 0, 255), -1)
 
         cv.line(temp, shoulders[0], shoulders[1], (255, 0, 0), 3)
+
+        cv.circle(temp, arm[0], 6, (0, 0, 255), -1)
+        cv.circle(temp, arm[1], 6, (0, 0, 255), -1)
+
+        cv.line(temp, arm[0], arm[1], (255, 0, 0), 3)
 
         cv.imshow("Left arm in same plane as shoulders", temp)
         cv.imwrite("checks/dtl/left_arm_plane.jpg", temp)

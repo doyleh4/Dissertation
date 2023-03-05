@@ -399,7 +399,7 @@ temp = 0
 # pause_at = [6, 12, 32, 46, 67]  # rough classifications
 
 
-# pause_at = [6, 20, 38, 48, 50, 51, 75]
+pause_at = [6, 20, 38, 48, 50, 51, 75]
 # pause_at = [9, 21, 41, 47, 48, 53, 80]
 pause_at = []
 
@@ -441,6 +441,8 @@ def main_loop():
         #     cv.imshow('Segmentation', mask.segmentation_mask)
         # except Exception:
         #     print("Exception in mask print")
+
+        # segmentation = pose.segmentation(frame)
 
         ball = detect(frame)
         # Get relevant pose features
