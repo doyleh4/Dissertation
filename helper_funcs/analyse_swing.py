@@ -23,6 +23,9 @@ draw = Graph()
 
 setup_knee_angle = 0
 
+global res
+res = []
+
 
 # TODO: Change all measurements here to be body to pixel ratio.
 # TODO: Add docstring everwhere here
@@ -49,8 +52,26 @@ def verify_leg_width(pose, img):
     :param img:
     :return:
     """
+    # TODO: Check that all these Checks and LeadsTo allign
+    check = {
+        "Check": "Legs Shoulder Width Apart",
+        "Stage": "Setup",
+        "Problem": "Balance",
+        "Description": "",  # Description of what's being done in the swing
+        "Fix": "",  # Filled in by the advice feedback system
+        "Points": [],
+        # all these below used as metadata
+        "isMistake": False,
+        "isRootCause": True,  # if this mistake leads to another we will need to check for the other aswell
+        "LeadsTo": ["Back Foot on Toes", "Head Over Ball", "Knee Flex Maintained for Setup"],
+        "isProcessed": False  # once check has been done, mark as true
+    }
+
     ankles = pose.get_ankles()
     shoulders = pose.get_shoulders()
+
+    check["Points"].append(ankles)
+    check["Points"].append(shoulders)
 
     # Draw the check
     draw.leg_width_check(img, ankles, shoulders)
@@ -60,17 +81,13 @@ def verify_leg_width(pose, img):
     left = ankles[0][0] - shoulders[0][0]
     right = ankles[1][0] - shoulders[1][0]
 
-    # These have to be formatted weird as we want most of them to be checked
-    if left > 5:  # Margin for acceptance
-        print("In setup users left ankle is {} pixels infront of their shoulders".format(str(left)))
-    elif left < -5:  # Margin for acceptance
-        print("In setup users left ankle is {} pixels behind of their shoulders".format(str(left)))
-    if right > 5:  # Margin for acceptance
-        print("In setup users right ankle is {} pixels infront of their shoulders".format(str(right)))
-    elif right < -5:  # Margin for acceptance
-        print("In setup users right ankle is {} pixels behind of their shoulders".format(str(right)))
-    if -5 < left < 5 and -5 < right < 5:
-        print("Good: In setup the players left and right ankle is below their left and right shoulder")
+    if -5 > left > 5 and -5 > right > 5:
+        check["Description"] += "One or both of your shoulders is not directly above your leg"
+        check["isMistake"] = True
+    else:
+        check["Description"] += "Your shoulders and feet were properly lined up in setup"
+
+    res.append(check)
 
 
 def verify_one_piece_movement(pose, img):
@@ -80,9 +97,27 @@ def verify_one_piece_movement(pose, img):
     :param img:
     :return:
     """
+    check = {
+        "Check": "One Piece Movement",
+        "Stage": "Takeaway",
+        "Problem": "Rotation Axis",
+        "Description": "",  # Description of what's being done in the swing
+        "Fix": "",  # Filled in by the advice feedback system
+        "Points": [],
+        # all these below used as metadata
+        "isMistake": False,
+        "isRootCause": True,  # if this mistake leads to another we will need to check for the other aswell
+        "LeadsTo": ["Lead Arm on Shoulder Plane", "Closed Shoulders"],
+        "isProcessed": False  # once check has been done, mark as true
+    }
+
     wrists = pose.get_wrists()
     elbows = pose.get_elbows()
     shoulders = pose.get_shoulders()
+
+    check["Points"].append(wrists)
+    check["Points"].append(elbows)
+    check["Points"].append(shoulders)
 
     draw.one_piece_movement_check(img, wrists, elbows, shoulders)
 
@@ -92,48 +127,118 @@ def verify_one_piece_movement(pose, img):
 
     # TODO: Verify the angle here is working as expected. (is it the inside or outside angle)
     if not 170 < left_side_angle < 190 and not 170 < right_side_angle < 190:  # 10 degree margin for error
-        print("In takeaway shoulders, wrists and elbows did not move as one")
+        check["Description"] += "One piece movement did not occur. Your shoulders, elbows and wrists should all move" \
+                                " as one in order to maintain rotation axis for the movement"
+        check["isMistake"] = True
     else:
-        print("Good: One Piece Movement was correct")
+        check["Description"] += "One Piece Movement happened as expected. This will help maintain rotation axis " \
+                                "throughout the movement"
+
+    res.append(check)
 
 
 def verify_followthrough_checks(pose, img):
+    check = {
+        "Check": "Head over Lead Leg",
+        "Stage": "Followthrough",
+        "Problem": "Rotation Axis",
+        "Description": "",  # Description of what's being done in the swing
+        "Fix": "",  # Filled in by the advice feedback system
+        "Points": [],
+        # all these below used as metadata
+        "isMistake": False,
+        "isRootCause": False,  # if this mistake leads to another we will need to check for the other aswell
+        "LeadsTo": [],
+        "isProcessed": False  # once check has been done, mark as true
+    }
     right_shoulder = pose.get_shoulders()[1]
     left_ankle = pose.get_ankles()[0]
+
+    check["Points"].append(right_shoulder)
+    check["Points"].append(left_ankle)
 
     draw.shoulder_over_foot(img, right_shoulder, left_ankle)
 
     distance = right_shoulder[0] - left_ankle[0]
 
     if distance > 5:  # Margin for acceptance
-        print("In follow through users right shoulder is {} pixels infront of their left ankle".format(str(distance)))
+        check["Description"] += "Your right shoulder is infront of your left ankle, this shows rotation axis was " \
+                                "misaligned during the movement and balance was off "
+        check["isMistake"] = True
     elif distance < -5:  # Margin for acceptance
-        print("In follow through users right shoulder is {} pixels behind of their left ankle".format(str(distance)))
+        check["Description"] += "Your right shoulder is behind of your left ankle, this shows rotation axis was " \
+                                "misaligned during the movement and balance was off "
+        check["isMistake"] = True
     else:
-        print("Good: Balance was maintained in follow through for the shoulder over foot check")
+        check[
+            "Description"] += "Your trail shoulder ended over your lead foot, this shows balance was maintained " \
+                              "throughout the action and rotation axis remained stable "
 
-    # TODO: Add in the check to see if the trail foot is lifteed off the ground.
+    res.append(check)
+    # TODO: Add in the check to see if the trail foot is lifted off the ground.
 
 
 def verify_head_behind_ball(pose, img):
+    check = {
+        "Check": "Head Behind Ball",
+        "Stage": "Downswing",
+        "Problem": "Proper contact",
+        "Description": "",  # Description of what's being done in the swing
+        "Fix": "",  # Filled in by the advice feedback system
+        "Points": [],
+        # all these below used as metadata
+        "isMistake": False,
+        "isRootCause": False,  # if this mistake leads to another we will need to check for the other aswell
+        "LeadsTo": [],
+        "isProcessed": False  # once check has been done, mark as true
+    }
     # ball = detect(img)
     ball = list(detect(img)[0])
     head = pose.get_left_ear()
+
+    check["Points"].append(ball)
+    check["Points"].append(head)
 
     # draw.head_behind_ball(img, ball, head)
 
     # Head should be behind the golf ball, hence subtract x values and if positive good
     diff = head[0] - ball[0]
     if diff < -5:  # allow slight margin as
-        print("In the downswing the users head is behind the golf ball by {} pixels".format(str(diff)))
+        check["Description"] += "Your head is not adequately behind the golf ball, this will may prevent more solid " \
+                                "contact. "
+        check["isMistake"] = True
     else:
-        print("Good: Players head remained behind the golf ball allowing for solid contact")
+        check["Description"] += "Your head remained behind the golf ball allowing for solid contact"
+
+    res.append(check)
 
 
 def verify_knee_angle(pose, img, name):
+    check = {
+        "Check": "Knee Flex",
+        "Stage": name,
+        "Problem": "Balance",
+        "Description": "",  # Description of what's being done in the swing
+        "Fix": "",  # Filled in by the advice feedback system
+        "Points": [],
+        # all these below used as metadata
+        "isMistake": False,
+        "isRootCause": True,  # if this mistake leads to another we will need to check for the others
+        "LeadsTo": None,
+        "isProcessed": False  # once check has been done, mark as true
+    }
+    if name == "Setup":
+        check["LeadsTo"] = ["Back Foot on Toes", "Head Over Ball", "Knee Flex Maintained for Setup"]
+    elif name == "Downswing":
+        check["LeadsTo"] = ["Back Foot on Toes", "Head Over Ball"]
+
     ankle = pose.get_right_ankle()
     knee = pose.get_right_knee()
     hip = pose.get_right_hip()
+
+    check["Points"].append(ankle)
+    check["Points"].append(knee)
+    check["Points"].append(hip)
 
     angle = calculate_angle(knee, ankle, hip)
 
@@ -141,38 +246,66 @@ def verify_knee_angle(pose, img, name):
     draw.knee_angle(img, ankle, knee, hip, name)
 
     if 150 < angle < 160:
-        print("Good: In the setup the knee angle is setup to maintain balance")
+        check["Description"] += "Knee angle is setup to maintain balance. "
     elif angle < 150:
-        print("In the setup the players knee is bent too much")
+        check["Description"] += "Your knee is bent too much, this may effect your balance in the movement. "
+        check["isMistake"] = True
     elif angle > 160:
-        print("In the setup the players knee is not bent enough")
+        check["Description"] += "Your knee is not bent enough, this may effect your balance in the movement. "
+        check["isMistake"] = True
 
     # Also as part of this we need to check that the users knee is directly above the foot. (not forward or backward)
     temp = [knee[0], knee[1] + 10]  # Get a point directly below the knee
-    setup_knee_angle = temp
     angle = calculate_angle(knee, ankle, temp)
 
     if -2 < angle < 2:
-        print("Good: In setup the players knee is directly above their ankle to maintain balance")
+        check["Description"] += "Your knee is directly above your ankle, this will help to maintain balance. "
     elif angle < -2:
-        print("In setup the players knee is too far ahead of their ankle")
+        check[
+            "Description"] += "Your knee is too far ahead of your ankle, this may effect your balance in the movement. "
+        check["isMistake"] = True
     elif angle > 2:
-        print("In setup the players knee is behind their ankle")
+        check["Description"] += "Your knee is behind their ankle, this may effect your balance in the movement. "
+        check["isMistake"] = True
+
+    res.append(check)
 
 
 def verify_trail_arm_straight(pose, dtl_img):
+    check = {
+        "Check": "Trail Arm Straight",
+        "Stage": "Takeaway",
+        "Problem": "Consistency",
+        "Description": "",  # Description of what's being done in the swing
+        "Fix": "",  # Filled in by the advice feedback system
+        "Points": [],
+        # all these below used as metadata
+        "isMistake": False,
+        "isRootCause": False,  # if this mistake leads to another we will need to check for the others
+        "LeadsTo": [],
+        "isProcessed": False  # once check has been done, mark as true
+    }
+
     wrist = pose.get_right_wrist()
     elbow = pose.get_right_elbow()
     shoulder = pose.get_right_shoulder()
+
+    check["Points"].append(wrist)
+    check["Points"].append(elbow)
+    check["Points"].append(shoulder)
 
     angle = calculate_angle(elbow, shoulder, wrist)
 
     draw.trail_arm_straight(dtl_img, wrist, elbow, shoulder)
 
     if 175 < angle < 185:
-        print("Good: In takeaway the players trail arm was straight so lead the swing on right axis")
+        check["Description"] += "Your trail arm was straight help to lead reduced wrist usage and inconsistency"
     else:
-        print("In takeaway the players hand was not straight")
+        check["Description"] += "Your trail arm was not straight. This may lead to over usage of the wrists throughout " \
+                                "the movement which will reduce consistency between swings"
+        check["isMistake"] = True
+
+    res.append(check)
 
 
 def run_setup_checks(fo_img, dtl_img):  # img and frame here are interchangeable
@@ -193,7 +326,7 @@ def run_setup_checks(fo_img, dtl_img):  # img and frame here are interchangeable
     pose = AnalysePose(dtl_img)
 
     # Verify the knee is slightly bent 
-    verify_knee_angle(pose, dtl_img, "setup")
+    verify_knee_angle(pose, dtl_img, "Setup")
     # TODO: Verify the back is straight
 
 
@@ -208,36 +341,95 @@ def run_takeaway_checks(fo_img, dtl_img):
 
 
 def verify_shoulder_slope(pose, dtl_img):
+    check = {
+        "Check": "Lead Arm on Shoulder Plane",
+        "Stage": "Backswing",
+        "Problem": "Axis Rotation",
+        "Description": "",  # Description of what's being done in the swing
+        "Fix": "",  # Filled in by the advice feedback system
+        "Points": [],
+        # all these below used as metadata
+        "isMistake": False,
+        "isRootCause": True,  # if this mistake leads to another we will need to check for the others
+        "LeadsTo": ["Closed Shoulders"],
+        "isProcessed": False  # once check has been done, mark as true
+    }
     shoulders = pose.get_shoulders()
     arm = [pose.get_left_wrist(), pose.get_left_elbow()]
+
+    check["Points"].append(shoulders)
+    check["Points"].append(arm)
 
     slope = calculate_slope(shoulders[0], shoulders[1])
     slope2 = calculate_slope(arm[0], arm[1])
     draw.shoulder_slope(dtl_img, shoulders, arm)
 
     if slope2 - .35 < slope < slope2 + .35:
-        print("Good: The players shoulders and lead arm are on the same plane in the backswing")
+        check["Description"] += "Your shoulders and lead arm are on the same plane in the backswing, this will enable " \
+                                "you to stay on the correct rotation axis for the movement"
     else:
-        print("In the backswing, the players shoulders and lead arm is noot in the same plane")
+        check["Description"] += "Your shoulders and lead arm are not in the same plane, this will ofset the rotation " \
+                                "axis for the movement"
+        check["isMistake"] = True
+
+    res.append(check)
 
 
 def verify_elbow_pointing_down(pose, dtl_img):
+    check = {
+        "Check": "Trail Elbow in Right Direction",
+        "Stage": "Backswing",
+        "Problem": "Consistency",
+        "Description": "",  # Description of what's being done in the swing
+        "Fix": "",  # Filled in by the advice feedback system
+        "Points": [],
+        # all these below used as metadata
+        "isMistake": False,
+        "isRootCause": False,  # if this mistake leads to another we will need to check for the others
+        "LeadsTo": [],
+        "isProcessed": False  # once check has been done, mark as true
+    }
     elbow = pose.get_right_elbow()
-    shoulder = pose.get_right_shoulder()
+    wrist = pose.get_right_wrist()
 
-    slope = calculate_slope(elbow, shoulder)
+    check["Points"].append(elbow)
+    check["Points"].append(wrist)
 
-    draw.elbow_pointing_down(dtl_img, elbow, shoulder)
+    slope = calculate_slope(elbow, wrist)
 
-    # TODO: This simply checks if its pointing down, change it so it checks pointing down and left (probable a range of vals)
+    draw.elbow_pointing_down(dtl_img, elbow, wrist)
+
+    # TODO: This simply checks if its pointing down, change it so it checks pointing down and left (probable a range
+    #  of vals)
+    # TODO: Change this to be correct. Used to check the right hand to verify these numbers
     if slope < 0:
-        print("Good: Right elbow pointing down and to the left")
+        check["Description"] += "Lead elbow pointing down and to the left, this will aid in being more consistent " \
+                                "between your swings"
     else:
-        print("In the backswing the players left elbow is not pointing down and to the left")
+        check["Description"] += "Your lead elbow is not pointing down and to the left, this may affect consistency " \
+                                "between swings"
+        check["isMistake"] = True
+
+    res.append(check)
 
 
 def verify_shoulders_closed(pose, img):
+    check = {
+        "Check": "Closed Shoulders",
+        "Stage": "Downswing",
+        "Problem": "Rotation Axis",
+        "Description": "",  # Description of what's being done in the swing
+        "Fix": "",  # Filled in by the advice feedback system
+        "Points": [],
+        # all these below used as metadata
+        "isMistake": False,
+        "isRootCause": False,  # if this mistake leads to another we will need to check for the others
+        "LeadsTo": [],
+        "isProcessed": False  # once check has been done, mark as true
+    }
     shoulders = pose.get_shoulders()
+
+    check["Points"].append(shoulders)
 
     slope = calculate_slope(shoulders[0], shoulders[1])
 
@@ -245,11 +437,15 @@ def verify_shoulders_closed(pose, img):
     draw.shoulders_closed(img, shoulders)
 
     if 0.1 < slope < 0.3:
-        print("Good: In the downswing, the players shoulders are closed properly so the swing has stayed on plane")
+        check["Description"] += "Your shoulders are closed properly, indicating the swing stayed on plane"
     elif slope < 0.1:
-        print("In the downswing, the players shoulders were open")
+        check["Description"] += "Your shoulders were open, this shows the swing is off plane"
+        check["isMistake"] = True
     elif slope > 0.3:
-        print("In the downswing, the players shoulders were too far closed")
+        check["Description"] += "Your shoulders were too far closed, this shows the swing is off plane"
+        check["isMistake"] = True
+
+    res.append(check)
 
 
 def run_backswing_checks(fo_img, dtl_img):
@@ -260,7 +456,6 @@ def run_backswing_checks(fo_img, dtl_img):
 
     verify_shoulder_slope(pose, dtl_img)
     verify_elbow_pointing_down(pose, dtl_img)
-    pass
 
 
 def run_downswing_checks(fo_img, dtl_img):
@@ -301,7 +496,6 @@ class SwingImageAnalyser:
         Main function of this class. Will iterate though the folder classified stage frames and analsyse them
         individually.
         """
-
         for face_on, dtl in STAGE_PATH:
             # Read image from opencv
             # try:
@@ -333,7 +527,7 @@ class SwingImageAnalyser:
             elif (face_on, dtl) == FOLLOWTHROUGH_FRAME:
                 run_followthrough_checks(fo_img, dtl_img)
 
-        return 0
+        return res
 
 
 # Next class - Used for analysing videos

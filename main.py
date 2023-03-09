@@ -547,4 +547,11 @@ if __name__ == "__main__":
     # TODO: Analyse these relevant "frames" and preform checks
     print("Analysing the inputted video for corrections")
     swing_analyser = SwingImageAnalyser()
-    swing_analyser.analyse()
+    results = swing_analyser.analyse()
+    for item in results:
+        print("In {}".format(item["Stage"]))
+        print(item["Description"])
+        if item["isMistake"]:
+            print("This will effect {}".format(item["Problem"]))
+        else:
+            print("This will help {}".format(item["Problem"]))
