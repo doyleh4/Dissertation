@@ -357,6 +357,7 @@ from helper_funcs.ball_detector import detect
 from helper_funcs.classify_stage import StageClassifier
 from helper_funcs.data_record import DTLDataRecord as DTLData
 from helper_funcs.data_record import FODataRecord as FOData
+from helper_funcs.feedback_system import NegativeFeedback as Feedback
 from helper_funcs.graphing import GraphHelper as Graph
 from helper_funcs.pose_estimation import PoseEstimation as Pose
 
@@ -548,10 +549,13 @@ if __name__ == "__main__":
     print("Analysing the inputted video for corrections")
     swing_analyser = SwingImageAnalyser()
     results = swing_analyser.analyse()
-    for item in results:
-        print("In {}".format(item["Stage"]))
-        print(item["Description"])
-        if item["isMistake"]:
-            print("This will effect {}".format(item["Problem"]))
-        else:
-            print("This will help {}".format(item["Problem"]))
+    # for item in results:
+    #     print("In {}".format(item["Stage"]))
+    #     print(item["Description"])
+    #     if item["isMistake"]:
+    #         print("This will effect {}".format(item["Problem"]))
+    #     else:
+    #         print("This will help {}".format(item["Problem"]))
+    feedback = Feedback(results)
+    feedback.process()
+    print("hello")

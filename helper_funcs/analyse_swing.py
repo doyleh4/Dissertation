@@ -215,7 +215,7 @@ def verify_head_behind_ball(pose, img):
 
 def verify_knee_angle(pose, img, name):
     check = {
-        "Check": "Knee Flex",
+        "Check": "Knee Flex {}".format(name),
         "Stage": name,
         "Problem": "Balance",
         "Description": "",  # Description of what's being done in the swing
@@ -228,9 +228,9 @@ def verify_knee_angle(pose, img, name):
         "isProcessed": False  # once check has been done, mark as true
     }
     if name == "Setup":
-        check["LeadsTo"] = ["Back Foot on Toes", "Head Over Ball", "Knee Flex Maintained for Setup"]
+        check["LeadsTo"] = ["Back Foot on Toes", "Head over Lead Leg", "Knee Flex {}".format("Downswing")]
     elif name == "Downswing":
-        check["LeadsTo"] = ["Back Foot on Toes", "Head Over Ball"]
+        check["LeadsTo"] = ["Back Foot on Toes", "Head over Lead Leg"]
 
     ankle = pose.get_right_ankle()
     knee = pose.get_right_knee()
@@ -265,7 +265,7 @@ def verify_knee_angle(pose, img, name):
             "Description"] += "Your knee is too far ahead of your ankle, this may effect your balance in the movement. "
         check["isMistake"] = True
     elif angle > 2:
-        check["Description"] += "Your knee is behind their ankle, this may effect your balance in the movement. "
+        check["Description"] += "Your knee is behind your ankle, this may effect your balance in the movement. "
         check["isMistake"] = True
 
     res.append(check)
@@ -466,7 +466,7 @@ def run_downswing_checks(fo_img, dtl_img):
 
     # Down the line checks
     pose = AnalysePose(dtl_img)
-    verify_knee_angle(pose, dtl_img, "downswing")
+    verify_knee_angle(pose, dtl_img, "Downswing")
     verify_shoulders_closed(pose, dtl_img)
 
 
