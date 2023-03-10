@@ -558,4 +558,8 @@ if __name__ == "__main__":
     #         print("This will help {}".format(item["Problem"]))
     feedback = Feedback(results)
     feedback.process()
+
+    # Results contains all the data we need for the front end. Only additional thing needed it the photos/video.
+    # When we have this we can use results["stage"] to get the photo and draw the points and whatever else necessary
+
     print("hello")
