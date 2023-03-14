@@ -82,18 +82,22 @@ class PoseEstimation:
         res, points, results = self.init_vars(frame)
 
         # Get the subset of landmarks that we need for the problem
-        landmarks_subset = [
-            results.pose_landmarks.landmark[24],  # 0: right hip
-            results.pose_landmarks.landmark[26],  # 1: right knee
-            results.pose_landmarks.landmark[28],  # 2: right ankle
-            results.pose_landmarks.landmark[12],  # 3: right shoulder
-            results.pose_landmarks.landmark[14],  # 4: right elbow
-            results.pose_landmarks.landmark[16],  # 5: right wrist
-            results.pose_landmarks.landmark[11],  # 6: left shoulder
-            results.pose_landmarks.landmark[23],  # 7: left hip
-            results.pose_landmarks.landmark[30],  # 8: right heel
-            results.pose_landmarks.landmark[32],  # 9: right foot index/toe
-        ]
+        try:
+            landmarks_subset = [
+                results.pose_landmarks.landmark[24],  # 0: right hip
+                results.pose_landmarks.landmark[26],  # 1: right knee
+                results.pose_landmarks.landmark[28],  # 2: right ankle
+                results.pose_landmarks.landmark[12],  # 3: right shoulder
+                results.pose_landmarks.landmark[14],  # 4: right elbow
+                results.pose_landmarks.landmark[16],  # 5: right wrist
+                results.pose_landmarks.landmark[11],  # 6: left shoulder
+                results.pose_landmarks.landmark[23],  # 7: left hip
+                results.pose_landmarks.landmark[30],  # 8: right heel
+                results.pose_landmarks.landmark[32],  # 9: right foot index/toe
+            ]
+        except:
+            return [[None, None], [None, None], [None, None], [None, None], [None, None], [None, None], [None, None],
+                    [None, None], [None, None], [None, None]]
 
         return normalise_all(landmarks_subset, frame)
 
@@ -113,7 +117,7 @@ class PoseEstimation:
         bg_image[:] = (0, 0, 0)  # gray
         annotated_image = np.where(condition, annotated_image, bg_image)
 
-        cv2.imshow("Segmentation", annotated_image)
+        # cv2.imshow("Segmentation", annotated_image)
         cv2.waitKey()
 
         return annotated_image

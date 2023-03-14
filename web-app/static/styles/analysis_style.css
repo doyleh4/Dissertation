@@ -1,0 +1,37 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+.video_player{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.video_player video{
+}
+.sidebar {
+    display: flex;
+    justify-content: center;
+
+}
+.sidebar_item{
+    padding: 30px;
+}
+img{
+    max-width: 100% /* This sets the image to 100% width of available space*/
+}
+.modal{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width:35%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out;
+}
+.sidebar_item:hover .modal {
+    opacity: 1;
+    visibility: visible;
+}

@@ -171,7 +171,7 @@ class GraphHelper:
         for point in points:
             cv.circle(temp, point, 3, (0, 0, 255), -1)
 
-        cv.imshow("Points", temp)
+        # cv.imshow("Points", temp)
 
     def draw_expanded(self, frame, points, ball):
         """
@@ -228,7 +228,8 @@ class GraphHelper:
         # TODO: Update this to detect in the first frame and track it after that
         cv.ellipse(temp, ball, (0, 0, 255), 2)
 
-        cv.imshow("Expanded checks", temp)
+        # cv.imshow("Expanded checks", temp)
+        return temp
 
     def draw_dtl_checks(self, frame, points, ball):
         """
@@ -267,9 +268,10 @@ class GraphHelper:
 
         # Draw the balls location (for now)
         # TODO: Update this to detect in the first frame and track it after that
-        cv.ellipse(temp, ball, (0, 0, 255), 2)
+        # cv.ellipse(temp, ball, (0, 0, 255), 2)
 
-        cv.imshow("Expanded checks", temp)
+        # cv.imshow("Expanded checks", temp)
+        return temp
 
     def show_graphs(self, data, dtl_data, t):
         # fig, ax = plt.subplots()
@@ -378,7 +380,7 @@ class GraphHelper:
         cv.line(temp, ankles[0], shoulders[0], (255, 255, 0), 1)
         cv.line(temp, ankles[1], shoulders[1], (255, 255, 0), 1)
 
-        cv.imshow("Leg check", temp)
+        # cv.imshow("Leg check", temp)
         cv.imwrite("checks/face_on/leg_width.jpg", temp)
 
     def one_piece_movement_check(self, frame, wrists, elbows, shoulders):
@@ -397,7 +399,7 @@ class GraphHelper:
         cv.line(temp, elbows[0], wrists[0], (0, 255, 0), 2)  # elbow to wrist
         cv.line(temp, elbows[1], wrists[1], (0, 255, 0), 2)
 
-        cv.imshow("OPM check", temp)
+        # cv.imshow("OPM check", temp)
         cv.imwrite("checks/face_on/one_piece_movement.jpg", temp)
 
     def shoulder_over_foot(self, frame, shoulder, foot):
@@ -412,7 +414,7 @@ class GraphHelper:
 
         cv.line(temp, shoulder, foot, (255, 255, 0), 1)
 
-        cv.imshow("Shoulder over foot check", temp)
+        # cv.imshow("Shoulder over foot check", temp)
         cv.imwrite("checks/face_on/shoulder_over_foot.jpg", temp)
 
     def head_behind_ball(self, frame, ball, head):
@@ -431,7 +433,7 @@ class GraphHelper:
 
         cv.line(temp, head, [int(ball[0]), int(ball[1])], (255, 255, 0), 1)
 
-        cv.imshow("Head behind ball check", temp)
+        # cv.imshow("Head behind ball check", temp)
         cv.imwrite("checks/face_on/head_behind_ball.jpg", temp)
 
     def knee_angle(self, frame, ankle, knee, hip, stage):
@@ -452,7 +454,7 @@ class GraphHelper:
         cv.line(temp, ankle, knee, (255, 0, 0), 3)
         cv.line(temp, knee, hip, (255, 0, 0), 3)
 
-        cv.imshow("Knee angle check", temp)
+        # cv.imshow("Knee angle check", temp)
         cv.imwrite("checks/dtl/{}_knee_angle.jpg".format(stage), temp)
 
     def trail_arm_straight(self, frame, wrist, elbow, shoulder):
@@ -465,7 +467,7 @@ class GraphHelper:
         cv.line(temp, wrist, elbow, (255, 0, 0), 3)
         cv.line(temp, elbow, shoulder, (255, 0, 0), 3)
 
-        cv.imshow("Train arm straight check", temp)
+        # cv.imshow("Train arm straight check", temp)
         cv.imwrite("checks/dtl/trail_arm_straight.jpg", temp)
 
     def shoulder_slope(self, frame, shoulders, arm):
@@ -481,7 +483,7 @@ class GraphHelper:
 
         cv.line(temp, arm[0], arm[1], (255, 0, 0), 3)
 
-        cv.imshow("Left arm in same plane as shoulders", temp)
+        # cv.imshow("Left arm in same plane as shoulders", temp)
         cv.imwrite("checks/dtl/left_arm_plane.jpg", temp)
 
     def elbow_pointing_down(self, frame, elbow, shoulder):
@@ -493,7 +495,7 @@ class GraphHelper:
 
         cv.arrowedLine(temp, shoulder, elbow, (255, 0, 0), 3)
 
-        cv.imshow("Trail elbow pointing down", temp)
+        # cv.imshow("Trail elbow pointing down", temp)
         cv.imwrite("checks/dtl/elbow_pointing_down.jpg", temp)
 
     def shoulders_closed(self, frame, shoulders):
@@ -506,5 +508,5 @@ class GraphHelper:
 
         cv.line(temp, shoulders[0], shoulders[1], (255, 0, 0), 3)
 
-        cv.imshow("Shoulders slightly closed", temp)
+        # cv.imshow("Shoulders slightly closed", temp)
         cv.imwrite("checks/dtl/shoulders_closed.jpg", temp)
