@@ -3,9 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Golf Coach</title>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/upload_video.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/index_style.css') }}">
+
 </head>
 <body>
 <h1> Please upload a video sample </h1>
+<!-- Video upload got here https://javacodepoint.com/drag-and-drop-file-upload-using-javascript/ -->
+
+<div class="upload-container">
+    <div class="upload_item">
+        <label for="fo-upload">Face On Upload:</label>
+        <form action="/upload_video" method="POST" enctype="multipart/form-data">
+            <input type="file" id="fo-upload" name="video"/>
+        </form>
+    </div>
+    <div class="upload_item">
+        <form action="/upload_video" method="POST" enctype="multipart/form-data">
+            <label for="dtl-upload">Down-the-Line Upload:</label>
+            <input type="file" id="dtl-upload" name="video">
+        </form>
+    </div>
+</div>
+<br>
+<button class="upload-btn" onclick="uploadFiles()">Submit</button>
 <h3> Insert Face-On drag and drop box here </h3>
 <h3> Insert Down-the-Line drag and drop box here </h3>
 <div>
