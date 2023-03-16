@@ -14,7 +14,7 @@ function handleDownload(file, file2){
     let form = new FormData()
 
     form.append("FO-video", file)
-    form.append("DTL-video", file)
+    form.append("DTL-video", file2)
 
     fetch("/upload_video", {
         method : "POST",

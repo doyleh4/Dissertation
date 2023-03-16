@@ -1,11 +1,19 @@
+# Helper imports
 import os
+import time
 
+import cv2 as cv
+# Required imports
 from flask import Flask, render_template, Response, send_file, request, jsonify
 
-from main import face_on_view
+from helper_funcs.classify_stage import StageClassifier
+from helper_funcs.data_record import FODataRecord as FOData, DTLDataRecord as DTLData
+from helper_funcs.graphing import GraphHelper as Graph
+# Custom class imports
+from main import face_on_view, down_the_line
 
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 200  # 200 MB limit
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 500  # 500 MB limit
 
 
 @app.route('/')
@@ -24,11 +32,21 @@ def upload_video():
             file = request.files.get(tag)
             if file:
                 try:
-                    print(os.getcwd())
-                    file.save(file.filename)
-                    print("Downloaded to server")
+                    # Download the file in the request file tag
+                    filename = file.filename
+                    file.save(filename)
+
+                    # Rename the file to be consistent between uploads
+                    try:
+                        new_name = "{}.MOV".format(tag)
+                        if os.path.exists(new_name):
+                            os.remove(new_name)
+                            time.sleep(1)
+                        os.rename(filename, new_name)
+                    except Exception as e:
+                        print(e)
+                    print("{} - File downloaded successfully".format(tag))
                 except Exception as e:
-                    print("ERRRRRRORORRRRR")
                     print(e)
         except:
             continue
@@ -50,16 +68,47 @@ def video(filename):
 @app.route('/FO_analysis')
 def fo_analysis():
     # TODO: Synchronise video
-    # width, height = face_on_view()
-    width, height = (480, 860)
+
+    # Init vars
+    data = FOData()
+    draw = Graph()
+
+    # Process video
+    data = face_on_view()
+
+    # Calculate acceleration
+    acc = draw.get_acceleration(data)
+
+    # Classify stages
+    print("Video is being classified for its stages")
+    view = cv.VideoCapture('./FO-video.MOV')
+    classifier = StageClassifier(acc, view)
+    classifier.single_classify()
+
+    # TODO: Analyse video
+    # TODO: Get feedback
+    # width, height = (480, 860)
     return render_template("FO_analysis.html")
 
 
 @app.route("/DTL_analysis")
 def dtl_analysis():
     # TODO: Synchronise video
-    # width, height = down_the_line()
-    width, height = (480, 860)
+    data = DTLData()
+    draw = Graph()
+
+    data = down_the_line()
+
+    # Calculate acceleration
+    acc = draw.get_acceleration(data)
+
+    # Classify stages
+    print("Video is being classified for its stages")
+    view = cv.VideoCapture('./DTL-video.MOV')
+    classifier = StageClassifier(acc, view)
+    classifier.single_classify()
+
+    # width, height = (480, 860)
     return render_template("DTL_analysis.html")
 
 

@@ -1,4 +1,5 @@
 import math
+import os
 
 import cv2 as cv
 import numpy as np
@@ -64,22 +65,42 @@ def calc(data):
 
 
 class StageClassifier:
-    def __init__(self, fo_data, dtl_data, video_feed, video_feed_b):
-        self.data = fo_data
-        self.data2 = dtl_data
-        self.video_a = video_feed
-        self.video_b = video_feed_b
+    # def __init__(self, fo_data, dtl_data, video_feed, video_feed_b):
+    #     self.data = fo_data
+    #     self.data2 = dtl_data
+    #     self.video_a = video_feed
+    #     self.video_b = video_feed_b
+    #
+    #     self.video_a.set(cv.CAP_PROP_POS_FRAMES, 0)
+    #     self.video_b.set(cv.CAP_PROP_POS_FRAMES, 0)
 
-        self.video_a.set(cv.CAP_PROP_POS_FRAMES, 0)
-        self.video_b.set(cv.CAP_PROP_POS_FRAMES, 0)
+    def __init__(self, data, video_feed):
+        """
+         Used in single processing on front-end
+        :param data:
+        :param video_feed:
+        """
+        self.data = data
+        self.video = video_feed
 
-    def classify_stages(self, data, video, view):
+        self.video.set(cv.CAP_PROP_POS_FRAMES, 0)
+
+    def single_classify(self):
+        """
+        Used in single processing on front-end
+        :return:
+        """
+        acc = smoothen_curve(self.data)
+        self.classify_stages(acc, self.video)  # pass face on data and save
+
+    def classify_stages(self, data, video):
         # NOTE: When we are saving the images here, the imwrite() function extracts the frame from the video
         # hence we need to take this into account when indexing the video after an imwrite(). Hence the index - states
         # when saving frames
         arr = []
         index = 0
         state = 0
+        print(os.getcwd())
         current_trend = "down"
         # Get setup by getting the lowest acceleration point at the start
         if state == 0:
@@ -94,7 +115,11 @@ class StageClassifier:
             # Save this frame as an image
             video.set(cv.CAP_PROP_POS_FRAMES, index - state)
             ret, frame = video.read()
-            cv.imwrite('swing_stages/{}/setup.jpg'.format(view), frame)
+            frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
+            # NOTE: Drop "static in file name if not running website. Only needed in flask
+            if not isMac:
+                frame = cv.rotate(frame, cv.ROTATE_180)
+            cv.imwrite('video/setup.jpg', frame)
             state += 1
 
         # Get takeaway by detecting first significant change in the data values.
@@ -112,7 +137,10 @@ class StageClassifier:
             # Save this frame as an image
             video.set(cv.CAP_PROP_POS_FRAMES, index - state)
             ret, frame = video.read()
-            cv.imwrite('swing_stages/{}/takeaway.jpg'.format(view), frame)
+            frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
+            if not isMac:
+                frame = cv.rotate(frame, cv.ROTATE_180)
+            cv.imwrite('video/takeaway.jpg', frame)
             state += 1
 
         # Get the top of the backswing by detecting the next low apex
@@ -139,7 +167,10 @@ class StageClassifier:
             # print("Next low index is {}".format(str(index)))
             video.set(cv.CAP_PROP_POS_FRAMES, index - state)
             ret, frame = video.read()
-            cv.imwrite('swing_stages/{}/backswing.jpg'.format(view), frame)
+            frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
+            if not isMac:
+                frame = cv.rotate(frame, cv.ROTATE_180)
+            cv.imwrite('video/backswing.jpg', frame)
 
             # # Write this as a video
             # TODO: Add this video creation for the DTL view
@@ -183,7 +214,10 @@ class StageClassifier:
 
             video.set(cv.CAP_PROP_POS_FRAMES, index - state)
             ret, frame = video.read()
-            cv.imwrite('swing_stages/{}/downswing.jpg'.format(view), frame)
+            frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
+            if not isMac:
+                frame = cv.rotate(frame, cv.ROTATE_180)
+            cv.imwrite('video/downswing.jpg', frame)
             state += 1
 
         # Get the frame before and after impact (will interpolate between these), this is going to be the fastest
@@ -206,11 +240,17 @@ class StageClassifier:
             # TODO: Why do we have to subtract a couple of frames here
             video.set(cv.CAP_PROP_POS_FRAMES, index - state)
             ret, frame = video.read()
-            cv.imwrite('swing_stages/{}/pre-impact.jpg'.format(view), frame)
+            frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
+            if not isMac:
+                frame = cv.rotate(frame, cv.ROTATE_180)
+            cv.imwrite('video/pre-impact.jpg', frame)
             # Save frame index after impact
             video.set(cv.CAP_PROP_POS_FRAMES, index - state + 1)
             ret, frame = video.read()
-            cv.imwrite('swing_stages/{}/post-impact.jpg'.format(view), frame)
+            frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
+            if not isMac:
+                frame = cv.rotate(frame, cv.ROTATE_180)
+            cv.imwrite('video/post-impact.jpg', frame)
             state += 1
 
             # Get the end of the follow through
@@ -227,7 +267,10 @@ class StageClassifier:
                 # Save this frame as an image
                 video.set(cv.CAP_PROP_POS_FRAMES, index - state)
                 ret, frame = video.read()
-                cv.imwrite('swing_stages/{}/followthrough.jpg'.format(view), frame)
+                frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
+                if not isMac:
+                    frame = cv.rotate(frame, cv.ROTATE_180)
+                cv.imwrite('video/followthrough.jpg', frame)
                 state += 1
 
     def classify(self):

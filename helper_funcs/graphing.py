@@ -359,6 +359,27 @@ class GraphHelper:
         # plt.plot(tempX)
         # plt.show()
 
+    def get_acceleration(self, data):
+        """
+        Function to calculate acceleration of the wrist
+        :param data:
+        :return:
+        """
+        try:
+            filtered = remove_outliers(data.data['lw'])  # Delete outlier points
+        except:
+            filtered = remove_outliers(data.r_wrist)
+        # Yes these are 2 different data types. Its horrible I know, im tired leave me alone :(
+
+        filled = estimate_missing_points(filtered)
+
+        # Note: this is only needed in website version of app. Runs ok when normal
+        filled = np.delete(filled, -1, axis=0)
+        # Calulate these accelerations
+        acceleration = calculate_acceleration(filled)
+
+        return acceleration
+
     # Visualise the checks
     def leg_width_check(self, frame, ankles, shoulders):
         """

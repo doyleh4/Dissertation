@@ -343,7 +343,6 @@
 # if __name__ == "__main__":
 #     # play the video, main loop
 #     main_loop()
-
 import sys
 
 import cv2 as cv
@@ -406,7 +405,7 @@ pause_at = []
 
 def face_on_view():
     # TODO: Delete this and replace with uploaded video
-    frontal_view = cv.VideoCapture("../videos/in_sync/a.MOV")
+    frontal_view = cv.VideoCapture("./FO-video.MOV")
 
     if not frontal_view.isOpened():
         print("Input file failed to open, there is a file path error.")
@@ -501,12 +500,12 @@ def face_on_view():
 
     out.release()
     cv.destroyAllWindows()
-    return (width, height)
+    return fo_data
 
 
 def down_the_line():
     # TODO: Delete this and replace with uploaded video
-    dtl_view = cv.VideoCapture("../videos/in_sync/b.MOV")
+    dtl_view = cv.VideoCapture("./DTL-video.MOV")
 
     if not dtl_view.isOpened():
         print("Input file failed to open, there is a file path error.")
@@ -571,7 +570,7 @@ def down_the_line():
         if keyboard == 113:  # 113 is "q"
             sys.exit(0)
     cv.destroyAllWindows()
-    return (width, height)
+    return dtl_data
 
 
 # def main_loop():
@@ -585,8 +584,8 @@ if __name__ == "__main__":
     # sync = Synchronizer(frontal_view, dtl_view)
     # sync.main()
 
-    frontal_view = cv.VideoCapture('videos/synced/synced-a.mp4')
-    dtl_view = cv.VideoCapture('videos/synced/synced-b.mp4')
+    # frontal_view = cv.VideoCapture('videos/synced/synced-a.mp4')
+    # dtl_view = cv.VideoCapture('videos/synced/synced-b.mp4')
 
     # play the video, main loop
     # main_loop()

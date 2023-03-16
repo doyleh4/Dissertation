@@ -9,8 +9,9 @@
 <body>
 <h1>Face-On view analysis</h1>
 <div class="video_player">
-    <video width="{{ width }}" height="{{ width }}" controls>
+    <video width="480" height="860" controls>
         <source src="{{ url_for('video', filename='FO_analysed.mp4') }}" type="video/mp4">
+        <!-- Delete this and replace it with something more informative to the user-->
         Your browser does not support the video tag.
     </video>
 </div>
@@ -18,31 +19,30 @@
     <!--TODO: Allign these items-->
     <div class="sidebar_item">
         <div> SETUP</div>
-        <img src="{{ url_for('static', filename='swing_stage/face_on/setup.jpg') }}">
+        <img src="{{ url_for('video', filename='setup.jpg') }}" width="80" , height="140">
         <div class="modal">
-            <img src="{{ url_for('static', filename='swing_stage/face_on/setup.jpg') }}">
-        </div>
-        <!--TODO: Make each of these a modal-->
-    </div>
-    <div class="sidebar_item">
-        <div> TAKEAWAY</div>
-        <img src="{{ url_for('static', filename='swing_stage/face_on/takeaway.jpg') }}">
-        <div class="modal">
-            <img src="{{ url_for('static', filename='swing_stage/face_on/takeaway.jpg') }}">
+            <img src="{{ url_for('video', filename='setup.jpg') }}">
         </div>
     </div>
     <div class="sidebar_item">
-        <div> BACKSWING</div>
-        <img src="{{ url_for('static', filename='swing_stage/face_on/backswing.jpg') }}">
+        <div> Takeaway</div>
+        <img src="{{ url_for('video', filename='takeaway.jpg') }}" width="80" , height="140">
         <div class="modal">
-            <img src="{{ url_for('static', filename='swing_stage/face_on/backswing.jpg') }}">
+            <img src="{{ url_for('video', filename='takeaway.jpg') }}">
         </div>
     </div>
     <div class="sidebar_item">
-        <div> DOWNSWING</div>
-        <img src="{{ url_for('static', filename='swing_stage/face_on/downswing.jpg') }}">
+        <div> Backswing</div>
+        <img src="{{ url_for('video', filename='backswing.jpg') }}" width="80" , height="140">
         <div class="modal">
-            <img src="{{ url_for('static', filename='swing_stage/face_on/downswing.jpg') }}">
+            <img src="{{ url_for('video', filename='backswing.jpg') }}">
+        </div>
+    </div>
+    <div class="sidebar_item">
+        <div> downswing</div>
+        <img src="{{ url_for('video', filename='downswing.jpg') }}" width="80" , height="140">
+        <div class="modal">
+            <img src="{{ url_for('video', filename='downswing.jpg') }}">
         </div>
     </div>
     <div class="sidebar_item">
@@ -50,10 +50,10 @@
         <!--<img src="{{ url_for('static', filename='swing_stage/face_on/backswing.jpg') }}">-->
     </div>
     <div class="sidebar_item">
-        <div> FOLLOW THROUGH</div>
-        <img src="{{ url_for('static', filename='swing_stage/face_on/followthrough.jpg') }}">
+        <div> Follow thorugh</div>
+        <img src="{{ url_for('video', filename='followthrough.jpg') }}" width="80" , height="140">
         <div class="modal">
-            <img src="{{ url_for('static', filename='swing_stage/face_on/followthrough.jpg') }}">
+            <img src="{{ url_for('video', filename='followthrough.jpg') }}">
         </div>
     </div>
 </div>
