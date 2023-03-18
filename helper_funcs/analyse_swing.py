@@ -268,7 +268,7 @@ def verify_knee_angle(pose, img, name):
         check["Description"] += "Your knee is behind your ankle, this may effect your balance in the movement. "
         check["isMistake"] = True
 
-    res.append(check)
+    res.append(check)  # Both views
 
 
 def verify_trail_arm_straight(pose, dtl_img):
@@ -504,9 +504,9 @@ class SwingImageAnalyser:
 
             # Show image and scale size to screen. Going to be different between my Mac and Windows. So fix this, but
             # doesn't matter to the functionality at the end.
-            # TODO: Can we scale this to fit on the monitor as opposed to resizing image
-            fo_img = cv.resize(fo_img, (int(fo_img.shape[1] / 2.5), int(fo_img.shape[0] / 2.5)))
-            dtl_img = cv.resize(dtl_img, (int(dtl_img.shape[1] / 2.5), int(dtl_img.shape[0] / 2.5)))
+            # # TODO: Can we scale this to fit on the monitor as opposed to resizing image
+            # fo_img = cv.resize(fo_img, (int(fo_img.shape[1] / 2.5), int(fo_img.shape[0] / 2.5)))
+            # dtl_img = cv.resize(dtl_img, (int(dtl_img.shape[1] / 2.5), int(dtl_img.shape[0] / 2.5)))
             # cv.imshow('image', img)
 
             # except:
@@ -526,6 +526,175 @@ class SwingImageAnalyser:
             #     run_impact_checks(img, dtl_img)
             elif (face_on, dtl) == FOLLOWTHROUGH_FRAME:
                 run_followthrough_checks(fo_img, dtl_img)
+
+        return res
+
+
+def run_dtl_setup_checks(dtl_img):  # img and frame here are interchangeable
+    """
+    Function to run the checks to be carried out in the swing setup.
+    :param fo_img, dtl_img:
+    :return:
+    """
+    # Carry out down-the-line checks
+    pose = AnalysePose(dtl_img)
+
+    # Verify the knee is slightly bent
+    verify_knee_angle(pose, dtl_img, "Setup")
+    # TODO: Verify the back is straight
+
+
+def run_dtl_takeaway_checks(dtl_img):
+    pose = AnalysePose(dtl_img)
+    verify_trail_arm_straight(pose, dtl_img)
+    # Verify clubhead out of line of hands??
+
+
+def run_dtl_backswing_checks(dtl_img):
+    # Down the line checks
+    pose = AnalysePose(dtl_img)
+
+    verify_shoulder_slope(pose, dtl_img)
+    verify_elbow_pointing_down(pose, dtl_img)
+
+
+def run_dtl_downswing_checks(dtl_img):
+    pose = AnalysePose(dtl_img)
+    verify_knee_angle(pose, dtl_img, "Downswing")
+    verify_shoulders_closed(pose, dtl_img)
+
+
+def run_dtl_followthrough_checks(dtl_img):
+    # No DTL Checks to implement atm
+    pass
+
+
+class DTLAnalyser:
+    # This is very messy and repetitive but im on a time constraints.
+    # TODO: Tidy this up
+
+    def analyse(self):
+        res.clear()
+        setup_img = "./video/setup.jpg"
+        takeaway_img = "./video/takeaway.jpg"
+        backswing_img = "./video/backswing.jpg"
+        downswing_img = "./video/downswing.jpg"
+        impact_img = "./video/post-impact.jpg"
+        # TODO: Add post impact and interpolate between values
+        followthrough_img = "./video/followthrough.jpg"
+
+        paths = [setup_img, takeaway_img, backswing_img, downswing_img, impact_img, followthrough_img]
+
+        for dtl in paths:
+            # Read image from opencv
+            # try:
+            dtl_img = cv.imread(dtl)
+
+            # Show image and scale size to screen. Going to be different between my Mac and Windows. So fix this, but
+            # doesn't matter to the functionality at the end.
+            # TODO: Can we scale this to fit on the monitor as opposed to resizing image
+            # dtl_img = cv.resize(dtl_img, (int(dtl_img.shape[1] / 2.5), int(dtl_img.shape[0] / 2.5)))
+            # cv.imshow('image', img)
+
+            # except:
+            #     print("Error reading image")
+
+            # depending on what stage of the swing we are checking call different functions
+            if dtl == setup_img:
+                run_dtl_setup_checks(dtl_img)
+            elif dtl == takeaway_img:
+                run_dtl_takeaway_checks(dtl_img)
+            elif dtl == backswing_img:
+                run_dtl_backswing_checks(dtl_img)
+            elif dtl == downswing_img:
+                run_dtl_downswing_checks(dtl_img)
+            # elif (face_on, dtl) == impact_img:
+            #     # process the post impact frame aswell, may be better to do it here and avoid it being in the list
+            #     run_impact_checks(img, dtl_img)
+            elif dtl == followthrough_img:
+                run_dtl_followthrough_checks(dtl_img)
+
+        return res
+
+
+def run_fo_setup_checks(img):
+    # Uses the pose_estimation file, with the constructor for the analyse class
+    pose = AnalysePose(img)
+    # print(pose.results)
+
+    # draw.draw_pose_results(fo_img, pose.results)
+    # Verify the legs are shoulder width apart
+    verify_leg_width(pose, img)
+
+
+def run_fo_takeaway_checks(img):
+    pose = AnalysePose(img)
+
+    verify_one_piece_movement(pose, img)
+
+
+def run_fo_backswing_checks(img):
+    # No checks to do here?
+    pass
+
+
+def run_fo_downswing_checks(img):
+    pose = AnalysePose(img)
+
+    # TODO: Uncomment when we get a new video with a ball
+    # verify_head_behind_ball(pose, img)
+
+
+def run_fo_followthrough_checks(img):
+    pose = AnalysePose(img)
+
+    verify_followthrough_checks(pose, img)
+
+
+class FOAnalyser:
+    # This is very messy and repetitive but im on a time constraints.
+    # TODO: Tidy this up
+
+    def analyse(self):
+        res.clear()
+        setup_img = "./video/setup.jpg"
+        takeaway_img = "./video/takeaway.jpg"
+        backswing_img = "./video/backswing.jpg"
+        downswing_img = "./video/downswing.jpg"
+        impact_img = "./video/post-impact.jpg"
+        # TODO: Add post impact and interpolate between values
+        followthrough_img = "./video/followthrough.jpg"
+
+        paths = [setup_img, takeaway_img, backswing_img, downswing_img, impact_img, followthrough_img]
+
+        for dtl in paths:
+            # Read image from opencv
+            # try:
+            img = cv.imread(dtl)
+
+            # Show image and scale size to screen. Going to be different between my Mac and Windows. So fix this, but
+            # doesn't matter to the functionality at the end.
+            # TODO: Can we scale this to fit on the monitor as opposed to resizing image
+            # dtl_img = cv.resize(img, (int(img.shape[1] / 2.5), int(img.shape[0] / 2.5)))
+            # cv.imshow('image', img)
+
+            # except:
+            #     print("Error reading image")
+
+            # depending on what stage of the swing we are checking call different functions
+            if dtl == setup_img:
+                run_fo_setup_checks(img)
+            elif dtl == takeaway_img:
+                run_fo_takeaway_checks(img)
+            elif dtl == backswing_img:
+                run_fo_backswing_checks(img)
+            elif dtl == downswing_img:
+                run_fo_downswing_checks(img)
+            # elif (face_on, dtl) == impact_img:
+            #     # process the post impact frame aswell, may be better to do it here and avoid it being in the list
+            #     run_impact_checks(img, dtl_img)
+            elif dtl == followthrough_img:
+                run_fo_followthrough_checks(img)
 
         return res
 

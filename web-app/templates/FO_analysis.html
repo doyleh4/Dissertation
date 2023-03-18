@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <title>Face-On analysis</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/analysis_style.css') }}">
-    <!--<script type="text/javascript" src="{{ url_for('static', filename='js/your_javascript_file.js') }}"></script>-->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/changeSetupImage.js') }}"></script>
+    <script>
+        // Assign data passed by Flask to JS variable
+        var data = {{results | tojson }};
+
+
+    </script>
 </head>
 <body>
 <h1>Face-On view analysis</h1>
@@ -21,28 +27,63 @@
         <div> SETUP</div>
         <img src="{{ url_for('video', filename='setup.jpg') }}" width="80" , height="140">
         <div class="modal">
-            <img src="{{ url_for('video', filename='setup.jpg') }}">
+            <script>
+                 var items = data.filter(function(item) {
+                    return item.Stage === "Setup";
+                 });
+
+
+            </script>
+            <img id="setup_img" src="{{ url_for('video', filename='setup.jpg') }}">
+            <button onClick="changeImage('/video/setup.jpg', 'setup_img')">Setup img</button>
+            <button onClick="changeImage('/video/leg_width.jpg', 'setup_img')"> Leg Width Check</button>
         </div>
     </div>
     <div class="sidebar_item">
         <div> Takeaway</div>
         <img src="{{ url_for('video', filename='takeaway.jpg') }}" width="80" , height="140">
         <div class="modal">
-            <img src="{{ url_for('video', filename='takeaway.jpg') }}">
+
+            <script>
+                 var items = data.filter(function(item) {
+                    return item.Stage === "Takeaway";
+                 });
+
+
+            </script>
+            <img id="takeaway_img" src="{{ url_for('video', filename='takeaway.jpg') }}">
+            <button onClick="changeImage('/video/takeaway.jpg', 'takeaway_img')">Takeaway img</button>
+            <button onClick="changeImage('video/one_piece_movement.jpg', 'takeaway_img')"> One Piece Movement Check
+            </button>
         </div>
     </div>
     <div class="sidebar_item">
         <div> Backswing</div>
         <img src="{{ url_for('video', filename='backswing.jpg') }}" width="80" , height="140">
         <div class="modal">
-            <img src="{{ url_for('video', filename='backswing.jpg') }}">
+            <script>
+                 var items = data.filter(function(item) {
+                    return item.Stage === "Backswing";
+                 });
+
+
+            </script>
+            <img id="backswing_img" src="{{ url_for('video', filename='backswing.jpg') }}">
         </div>
     </div>
     <div class="sidebar_item">
-        <div> downswing</div>
+        <div> Downswing</div>
         <img src="{{ url_for('video', filename='downswing.jpg') }}" width="80" , height="140">
         <div class="modal">
-            <img src="{{ url_for('video', filename='downswing.jpg') }}">
+            <script>
+                 var items = data.filter(function(item) {
+                    return item.Stage === "Downswing";
+                 });
+
+
+            </script>
+            <img id="downswing_img" src="{{ url_for('video', filename='downswing.jpg') }}">
+            <!-- TODO Add the head behind ball check -->
         </div>
     </div>
     <div class="sidebar_item">
@@ -50,10 +91,21 @@
         <!--<img src="{{ url_for('static', filename='swing_stage/face_on/backswing.jpg') }}">-->
     </div>
     <div class="sidebar_item">
-        <div> Follow thorugh</div>
+        <div> Follow through</div>
         <img src="{{ url_for('video', filename='followthrough.jpg') }}" width="80" , height="140">
         <div class="modal">
-            <img src="{{ url_for('video', filename='followthrough.jpg') }}">
+            <script>
+                 var items = data.filter(function(item) {
+                    return item.Stage === "Followthrough";
+                 });
+
+
+            </script>
+            <img id="followthrough_img" src="{{ url_for('video', filename='followthrough.jpg') }}">
+            <button onClick="changeImage('/video/followthrough.jpg', 'followthrough_img')">Follow Through img</button>
+            <button onClick="changeImage('/video/shoulder_over_foot.jpg', 'followthrough_img')"> Shoulder Over Foot
+                Check
+            </button>
         </div>
     </div>
 </div>

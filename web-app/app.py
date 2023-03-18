@@ -3,11 +3,14 @@ import os
 import time
 
 import cv2 as cv
+import numpy as np
 # Required imports
 from flask import Flask, render_template, Response, send_file, request, jsonify
 
+from helper_funcs.analyse_swing import DTLAnalyser, FOAnalyser
 from helper_funcs.classify_stage import StageClassifier
 from helper_funcs.data_record import FODataRecord as FOData, DTLDataRecord as DTLData
+from helper_funcs.feedback_system import NegativeFeedback as Feedback
 from helper_funcs.graphing import GraphHelper as Graph
 # Custom class imports
 from main import face_on_view, down_the_line
@@ -85,10 +88,28 @@ def fo_analysis():
     classifier = StageClassifier(acc, view)
     classifier.single_classify()
 
-    # TODO: Analyse video
-    # TODO: Get feedback
-    # width, height = (480, 860)
-    return render_template("FO_analysis.html")
+    # Analyse the images
+    analyser = FOAnalyser()
+    res = analyser.analyse()
+
+    # Get feedback for results
+    feedback = Feedback(res)
+    feedback.process()
+
+    # Convert the Point element to be compatible with JS and HTML
+    for i in res:
+        # Process differently depending on items in point
+        temp = np.array(i["Points"])
+        temp = np.ndim(temp)
+        if temp == 2:
+            converted = [item.tolist() for item in i["Points"]]
+        elif temp == 3:
+            converted = [[item.tolist() for item in temp] for temp in i["Points"]]
+        # for item in i["Points"]:
+        #     t = item.tolist()
+        i["Points"] = converted
+
+    return render_template("FO_analysis.html", results=res)
 
 
 @app.route("/DTL_analysis")
@@ -108,8 +129,30 @@ def dtl_analysis():
     classifier = StageClassifier(acc, view)
     classifier.single_classify()
 
+    # Analyse the images
+    analyser = DTLAnalyser()
+    res = analyser.analyse()
+
+    feedback = Feedback(res)
+    feedback.process()
+
+    # Convert the Point element to be compatible with JS and HTML
+    for i in res:
+        # Process differently depending on items in point
+        temp = np.array(i["Points"])
+        temp = np.ndim(temp)
+        if temp == 2:
+            converted = [item.tolist() for item in i["Points"]]
+        elif temp == 3:
+            converted = [[item.tolist() for item in temp] for temp in i["Points"]]
+        # for item in i["Points"]:
+        #     t = item.tolist()
+        i["Points"] = converted
+
+    # for item in data:
+
     # width, height = (480, 860)
-    return render_template("DTL_analysis.html")
+    return render_template("DTL_analysis.html", results=res)
 
 
 @app.route('/play_video')
