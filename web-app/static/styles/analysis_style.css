@@ -20,6 +20,27 @@ body {
 img{
     max-width: 100% /* This sets the image to 100% width of available space*/
 }
+button{
+    background-color: green;
+}
+#Setup{
+    border: 8px solid green;
+}
+#Takeaway{
+    border: 8px solid green;
+}
+#Backswing{
+    border: 8px solid green;
+}
+#Downswing{
+    border: 8px solid green;
+}
+#Followthrough{
+    border: 8px solid green;
+}
+.fix_text{
+    background-color: white;
+}
 .modal{
     position: fixed;
     top: 50%;

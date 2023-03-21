@@ -273,6 +273,19 @@ class StageClassifier:
                 cv.imwrite('video/followthrough.jpg', frame)
                 state += 1
 
+        # Graph curve and classified frames
+        # y = np.arange(len(data))  # [0,1,2,3...N]
+        # plt.plot(y, data)
+        # # arr.append(len(data) - 1)
+        # # temp = [data[x] for x in arr]
+        # # plt.scatter(arr, temp, label="Classified frames")
+        #
+        # plt.ylabel("Movement (pixels)")
+        # plt.xlabel("Frame")
+        # plt.legend()
+        #
+        # plt.show()
+
     def classify(self):
         # TODO: Delete this unprocessed data is only for dev
         # t = calc(self.data)

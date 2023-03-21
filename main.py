@@ -416,7 +416,7 @@ def face_on_view():
     width = int(frontal_view.get(cv.CAP_PROP_FRAME_WIDTH))
     height = int(frontal_view.get(cv.CAP_PROP_FRAME_HEIGHT))
 
-    fourcc = cv.VideoWriter_fourcc(*'avc1')  # this fourcc works form chrome and firefox
+    fourcc = cv.VideoWriter_fourcc(*'mp4v')  # this fourcc works form chrome and firefox
     out = cv.VideoWriter('./video/FO_analysed.mp4', fourcc, fps, (int(width / 2.5), int(height / 2.5)))
 
     slomo = False
@@ -490,6 +490,7 @@ def face_on_view():
         # keyboard = cv.waitKey(100)
         width = frame.shape[1]
         height = frame.shape[0]
+        cv.imshow("f", frame)
 
         # if keyboard == 115:  # 115 is "s"
         #     slomo = not slomo

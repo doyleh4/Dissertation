@@ -1,15 +1,16 @@
 # Functional requirements
 import math
-import tqdm
 
 # Required imports
 import cv2 as cv
 import numpy as np
+import tqdm
+from matplotlib import pyplot as plt
 
+import my_config.config as config
 # Custom class imports
 from helper_funcs.pose_estimation import PoseEstimation
 
-import my_config.config as config
 
 def find_stop_point(arr):
     """
@@ -21,6 +22,7 @@ def find_stop_point(arr):
         if arr[i] < arr[i - 1]:
             return i
     return max_index
+
 
 def calculate_acceleration(filled):
     """
@@ -66,34 +68,37 @@ class Synchronizer:
         """
         while self.fo_cap.isOpened() or self.dtl_cap.isOpened():
             ret, frame = self.fo_cap.read()
-            ret2, frame2 = self.dtl_cap.read()
+            try:
+                ret2, frame2 = self.dtl_cap.read()
+            except:
+                print("second file not opened")
 
             # End play back if end of video
-            if not ret or not ret2:
+            if not ret:  # Need to uclude " or not ret2" in conditional:
                 break
 
             frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
             if not isMac:
                 frame = cv.rotate(frame, cv.ROTATE_180)
 
-            frame2 = cv.resize(frame2, (int(frame2.shape[1] / 2.5), int(frame2.shape[0] / 2.5)))
-            if not isMac:
-                frame2 = cv.rotate(frame2, cv.ROTATE_180)
+            # frame2 = cv.resize(frame2, (int(frame2.shape[1] / 2.5), int(frame2.shape[0] / 2.5)))
+            # if not isMac:
+            #     frame2 = cv.rotate(frame2, cv.ROTATE_180)
 
             try:
                 arr.append(pose.get_left_wrist(frame))
-                arr2.append(pose.get_left_wrist(frame2))
+                # arr2.append(pose.get_left_wrist(frame2))
             except:
                 arr.append([None, None])
-                arr2.append([None, None])
+                # arr2.append([None, None])
 
             # cv.imshow("Face On", frame)
             # cv.imshow("Down The Line", frame2)
             # cv.waitKey(5)
 
-        # Restardtvideos
+        # Restart videos
         self.fo_cap.set(cv.CAP_PROP_POS_FRAMES, 0)
-        self.dtl_cap.set(cv.CAP_PROP_POS_FRAMES, 0)
+        # self.dtl_cap.set(cv.CAP_PROP_POS_FRAMES, 0)
         cv.destroyAllWindows()
 
     def save_synced_videos(self, a, b):
@@ -109,8 +114,9 @@ class Synchronizer:
 
         fourcc = cv.VideoWriter_fourcc(*'mp4v')
 
-        out = cv.VideoWriter("videos/synced/synced-a.mp4", fourcc, fps, (width, height))
-        out2 = cv.VideoWriter("videos/synced/synced-b.mp4", fourcc, fps, (width, height))
+        # out = cv.VideoWriter("videos/synced/synced-a.mp4", fourcc, fps, (width, height))
+        out = cv.VideoWriter("../videos/temp_parsed.mp4", fourcc, fps, (width, height))
+        # out2 = cv.VideoWriter("videos/synced/synced-b.mp4", fourcc, fps, (width, height))
 
         # Get 25 frames either side of top of backswing from these indices
         print("First video")
@@ -122,26 +128,25 @@ class Synchronizer:
                 frame = cv.rotate(frame, cv.ROTATE_180)
             out.write(frame)
 
-        print("Second video")
-        for i in tqdm.tqdm(range(b - 40, b + 40)):
-            # Read and write video between these frames
-            self.dtl_cap.set(cv.CAP_PROP_POS_FRAMES, i)
-            ret, frame = self.dtl_cap.read()
-            if not isMac:
-                frame = cv.rotate(frame, cv.ROTATE_180)
-            out2.write(frame)
+        # print("Second video")
+        # for i in tqdm.tqdm(range(b - 40, b + 40)):
+        #     # Read and write video between these frames
+        #     self.dtl_cap.set(cv.CAP_PROP_POS_FRAMES, i)
+        #     ret, frame = self.dtl_cap.read()
+        #     if not isMac:
+        #         frame = cv.rotate(frame, cv.ROTATE_180)
+        #     out2.write(frame)
 
         out.release()
-        out2.release()
+        # out2.release()
         self.fo_cap.release()
-        self.dtl_cap.release()
-
+        # self.dtl_cap.release()
 
     def main(self):
         """
         Main function of the class. Will save the new synced videos and return the new CV.VideoCapture objects
         """
-        if not self.fo_cap.isOpened() or not self.dtl_cap.isOpened():
+        if not self.fo_cap.isOpened():  # Include this in conditional "or not self.dtl_cap.isOpened():"
             print('Error loading video file')
             exit()
 
@@ -149,11 +154,19 @@ class Synchronizer:
 
         # Calculate acceleration curves
         acc = calculate_acceleration(arr)
-        acc2 = calculate_acceleration(arr2)
+        # acc2 = calculate_acceleration(arr2)
+
+        # Plot the acceleration curve
+        i = np.arange(len(acc))
+        plt.plot(i, acc, label="Movement per frame")
+        plt.ylabel("Movement (pix/frame)")
+        plt.xlabel("Frame")
+        plt.legend()
+        plt.show()
 
         # Find end of backswing (when acceleration is zero)
         a = find_stop_point(acc)
-        b = find_stop_point(acc2)
+        b = find_stop_point(np.array([0, 1]))  # find_stop_point(acc2)
 
         self.save_synced_videos(a, b)
 
@@ -174,8 +187,7 @@ class Synchronizer:
         #     cv.waitKey(5)
 
 
-
-
-
-
-
+if __name__ == "__main__":
+    temp = cv.VideoCapture("../videos/temp.MOV")
+    sync = Synchronizer(temp, None)
+    sync.main()

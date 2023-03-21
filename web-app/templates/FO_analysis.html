@@ -5,11 +5,11 @@
     <title>Face-On analysis</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/analysis_style.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='js/changeSetupImage.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/colourStagePlaceholder.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/colourCheckButton.js') }}"></script>
     <script>
         // Assign data passed by Flask to JS variable
         var data = {{results | tojson }};
-
-
     </script>
 </head>
 <body>
@@ -25,23 +25,23 @@
     <!--TODO: Allign these items-->
     <div class="sidebar_item">
         <div> SETUP</div>
-        <img src="{{ url_for('video', filename='setup.jpg') }}" width="80" , height="140">
+        <img id="Setup" src="{{ url_for('video', filename='setup.jpg') }}" width="80" , height="140">
         <div class="modal">
             <script>
                  var items = data.filter(function(item) {
                     return item.Stage === "Setup";
                  });
-
-
             </script>
             <img id="setup_img" src="{{ url_for('video', filename='setup.jpg') }}">
+            <div class="fix_text"></div>
             <button onClick="changeImage('/video/setup.jpg', 'setup_img')">Setup img</button>
-            <button onClick="changeImage('/video/leg_width.jpg', 'setup_img')"> Leg Width Check</button>
+            <button onClick="changeImage('/video/leg_width.jpg', 'setup_img')">Legs Shoulder Width Apart</button>
+            <script> colourButtons(items) </script>
         </div>
     </div>
     <div class="sidebar_item">
         <div> Takeaway</div>
-        <img src="{{ url_for('video', filename='takeaway.jpg') }}" width="80" , height="140">
+        <img id="Takeaway" src="{{ url_for('video', filename='takeaway.jpg') }}" width="80" , height="140">
         <div class="modal">
 
             <script>
@@ -50,16 +50,18 @@
                  });
 
 
+
             </script>
             <img id="takeaway_img" src="{{ url_for('video', filename='takeaway.jpg') }}">
-            <button onClick="changeImage('/video/takeaway.jpg', 'takeaway_img')">Takeaway img</button>
-            <button onClick="changeImage('video/one_piece_movement.jpg', 'takeaway_img')"> One Piece Movement Check
-            </button>
+            <div class="fix_text"></div>
+            <button onClick="changeImage('/video/takeaway.jpg', 'takeaway_img', this, data)">Takeaway img</button>
+            <button onClick="changeImage('video/one_piece_movement.jpg', 'takeaway_img', this, data)">One Piece Movement</button>
+            <script> colourButtons(items) </script>
         </div>
     </div>
     <div class="sidebar_item">
         <div> Backswing</div>
-        <img src="{{ url_for('video', filename='backswing.jpg') }}" width="80" , height="140">
+        <img id="Backswing" src="{{ url_for('video', filename='backswing.jpg') }}" width="80" , height="140">
         <div class="modal">
             <script>
                  var items = data.filter(function(item) {
@@ -67,23 +69,27 @@
                  });
 
 
+
             </script>
             <img id="backswing_img" src="{{ url_for('video', filename='backswing.jpg') }}">
+            <div class="fix_text"></div>
+            <script> colourButtons(items) </script>
         </div>
     </div>
     <div class="sidebar_item">
         <div> Downswing</div>
-        <img src="{{ url_for('video', filename='downswing.jpg') }}" width="80" , height="140">
+        <img id="Downswing" src="{{ url_for('video', filename='downswing.jpg') }}" width="80" , height="140">
         <div class="modal">
             <script>
                  var items = data.filter(function(item) {
                     return item.Stage === "Downswing";
                  });
 
-
             </script>
             <img id="downswing_img" src="{{ url_for('video', filename='downswing.jpg') }}">
+            <div class="fix_text"></div>
             <!-- TODO Add the head behind ball check -->
+            <script> colourButtons(items) </script>
         </div>
     </div>
     <div class="sidebar_item">
@@ -92,22 +98,24 @@
     </div>
     <div class="sidebar_item">
         <div> Follow through</div>
-        <img src="{{ url_for('video', filename='followthrough.jpg') }}" width="80" , height="140">
+        <img id="Followthrough" src="{{ url_for('video', filename='followthrough.jpg') }}" width="80" , height="140">
         <div class="modal">
             <script>
                  var items = data.filter(function(item) {
                     return item.Stage === "Followthrough";
                  });
 
-
             </script>
             <img id="followthrough_img" src="{{ url_for('video', filename='followthrough.jpg') }}">
-            <button onClick="changeImage('/video/followthrough.jpg', 'followthrough_img')">Follow Through img</button>
-            <button onClick="changeImage('/video/shoulder_over_foot.jpg', 'followthrough_img')"> Shoulder Over Foot
-                Check
-            </button>
+            <div class="fix_text"></div>
+            <button onClick="changeImage('/video/followthrough.jpg', 'followthrough_img', this, data)">Follow Through img</button>
+            <button onClick="changeImage('/video/shoulder_over_foot.jpg', 'followthrough_img', this, data)">Head over Lead Leg</button>
+            <script> colourButtons(items) </script>
         </div>
     </div>
+    <script>
+        setColourField(data)
+    </script>
 </div>
 </body>
 </html>

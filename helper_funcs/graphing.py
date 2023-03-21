@@ -373,10 +373,35 @@ class GraphHelper:
 
         filled = estimate_missing_points(filtered)
 
+        # Graph the data
+        # temp = filled
+        # tempX = [val[0] for val in temp]
+        # tempY = [val[1] for val in temp]
+        # # # TODO: t - val[1] seems to shove it below the y axis so fix this
+        # # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        # fig, ax = plt.subplots()
+        # ax.invert_yaxis()
+        # plt.plot(tempX, tempY, label="Hand track")
+        # plt.margins(1, 2.8)
+        # plt.ylabel("Y coord")
+        # plt.xlabel("X coord")
+        # plt.legend()
+        # plt.show()
+
         # Note: this is only needed in website version of app. Runs ok when normal
         filled = np.delete(filled, -1, axis=0)
         # Calulate these accelerations
         acceleration = calculate_acceleration(filled)
+
+        # Graph the data
+        # i = np.arange(len(acceleration))
+        # # # TODO: t - val[1] seems to shove it below the y axis so fix this
+        # # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
+        # plt.plot(i, acceleration, label="Distance from previous point")
+        # plt.ylabel("Movement (pixel/frame)")
+        # plt.xlabel("Frame")
+        # plt.legend()
+        # plt.show()
 
         return acceleration
 
