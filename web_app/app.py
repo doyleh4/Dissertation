@@ -7,16 +7,14 @@ import cv2 as cv
 import numpy as np
 from flask import Flask, render_template, Response, send_file, request, jsonify
 
-
 # Custom class imports
 from helper_funcs.analyse_swing import DTLAnalyser, FOAnalyser
 from helper_funcs.classify_stage import StageClassifier
 from helper_funcs.data_record import FODataRecord as FOData, DTLDataRecord as DTLData
 from helper_funcs.feedback_system import NegativeFeedback as Feedback
 from helper_funcs.graphing import GraphHelper as Graph
-from main import face_on_view, down_the_line
 from helper_funcs.sync_videos import Synchronizer as VideoParser
-
+from main import face_on_view, down_the_line
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 500  # 500 MB limit
@@ -62,6 +60,7 @@ def upload_video():
 def video(filename):
     video_path = "video/{}".format(filename)
     return send_file(video_path, mimetype='video/mp4')
+
 
 @app.route('/FO_analysis')
 def fo_analysis():

@@ -5,7 +5,6 @@ import math
 import cv2 as cv
 import numpy as np
 import tqdm
-from matplotlib import pyplot as plt
 
 import my_config.config as config
 # Custom class imports
@@ -79,12 +78,6 @@ class Synchronizer:
                 break
 
             frame = cv.resize(frame, (int(frame.shape[1] / 2.5), int(frame.shape[0] / 2.5)))
-            if not isMac:
-                frame = cv.rotate(frame, cv.ROTATE_180)
-
-            # frame2 = cv.resize(frame2, (int(frame2.shape[1] / 2.5), int(frame2.shape[0] / 2.5)))
-            # if not isMac:
-            #     frame2 = cv.rotate(frame2, cv.ROTATE_180)
 
             try:
                 self.arr.append(pose.get_left_wrist(frame))
@@ -125,8 +118,6 @@ class Synchronizer:
             # Read and write video between these frames
             self.fo_cap.set(cv.CAP_PROP_POS_FRAMES, i)
             ret, frame = self.fo_cap.read()
-            if not isMac:
-                frame = cv.rotate(frame, cv.ROTATE_180)
             out.write(frame)
 
         # print("Second video")
@@ -141,7 +132,7 @@ class Synchronizer:
         out.release()
         # out2.release()
         self.fo_cap.release()
-        return [a-40, a+40]
+        return [a - 40, a + 40]
         # self.dtl_cap.release()
 
     def main(self):
