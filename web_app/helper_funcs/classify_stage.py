@@ -3,6 +3,7 @@ import os
 
 import cv2 as cv
 import numpy as np
+from matplotlib import pyplot as plt
 from scipy.signal import savgol_filter
 
 import my_config.config as config
@@ -43,7 +44,8 @@ def smoothen_curve(filled):
     # Smoothen this to make the classification easier
     # TODO: This savgol filer parameters could be changed if the frame rate is differnet (i.e. slo-mo camera), this result
     # doesnt turn out similar in slo-mo video
-    res = savgol_filter(filled, 30, 3)  # window size 30, polynomial order 6 - good for regular speed
+    res = savgol_filter(filled, 31, 3)  # window size 31, polynomial order 3 - good for regular speed
+    # res = savgol_filter(filled, 30, 3)  # window size 30, polynomial order 3 - good for regular speed
     # res = savgol_filter(res, 180, 3)  # (expected shape, but bumpy) - good for slo-mo but needs more experimentation
     # res = savgol_filter(res, 12, 3)
 
@@ -91,6 +93,17 @@ class StageClassifier:
         :return:
         """
         acc = smoothen_curve(self.data)
+
+        # temp = np.arange(len(acc))
+        #
+        # plt.plot(temp, acc)
+        # plt.xlabel("Frame")
+        # plt.ylabel("Movement (px)")
+        # plt.title("Movement Difference of wrist")
+        #
+        # plt.savefig('plot.png')
+
+
         self.classify_stages(acc, self.video)  # pass face on data and save
 
     def classify_stages(self, data, video):

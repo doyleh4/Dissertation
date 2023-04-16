@@ -2,18 +2,21 @@
 import os
 import time
 
+# Required imports
 import cv2 as cv
 import numpy as np
-# Required imports
 from flask import Flask, render_template, Response, send_file, request, jsonify
 
+
+# Custom class imports
 from helper_funcs.analyse_swing import DTLAnalyser, FOAnalyser
 from helper_funcs.classify_stage import StageClassifier
 from helper_funcs.data_record import FODataRecord as FOData, DTLDataRecord as DTLData
 from helper_funcs.feedback_system import NegativeFeedback as Feedback
 from helper_funcs.graphing import GraphHelper as Graph
-# Custom class imports
 from main import face_on_view, down_the_line
+from helper_funcs.sync_videos import Synchronizer as VideoParser
+
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 500  # 500 MB limit
@@ -21,8 +24,6 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 500  # 500 MB limit
 
 @app.route('/')
 def index():
-    # TODO: drag and drop box that will send video to server on upload this will involve updating the new file paths
-    #  in the source code to the new uploaded file and send the correct files to the static folder
     return render_template("index.html")
 
 
@@ -61,30 +62,27 @@ def upload_video():
 def video(filename):
     video_path = "video/{}".format(filename)
     return send_file(video_path, mimetype='video/mp4')
-    # return Response(
-    #     send_file("./video/{}".format(filename), as_attachment=False, conditional=False),
-    #     mimetype='video/mp4'
-    # )
-    # return send_from_directory('./video/', filename)
-
 
 @app.route('/FO_analysis')
 def fo_analysis():
-    # TODO: Synchronise video
+    cap = cv.VideoCapture("./FO-video.MOV")
+
+    parser = VideoParser(cap, None)
+    parsed = parser.main()
 
     # Init vars
     data = FOData()
     draw = Graph()
 
     # Process video
-    data = face_on_view()
+    data = face_on_view("./video/temp_parsed.mp4")
 
     # Calculate acceleration
     acc = draw.get_acceleration(data)
 
     # Classify stages
     print("Video is being classified for its stages")
-    view = cv.VideoCapture('./FO-video.MOV')
+    view = cv.VideoCapture('./video/temp_parsed.mp4')
     classifier = StageClassifier(acc, view)
     classifier.single_classify()
 
@@ -114,18 +112,22 @@ def fo_analysis():
 
 @app.route("/DTL_analysis")
 def dtl_analysis():
-    # TODO: Synchronise video
+    cap = cv.VideoCapture("./DTL-video.MOV")
+
+    parser = VideoParser(cap, None)
+    parsed = parser.main()
+
     data = DTLData()
     draw = Graph()
 
-    data = down_the_line()
+    data = down_the_line("./video/temp_parsed.mp4")
 
     # Calculate acceleration
     acc = draw.get_acceleration(data)
 
     # Classify stages
     print("Video is being classified for its stages")
-    view = cv.VideoCapture('./DTL-video.MOV')
+    view = cv.VideoCapture('./video/temp_parsed.mp4')
     classifier = StageClassifier(acc, view)
     classifier.single_classify()
 
@@ -149,9 +151,6 @@ def dtl_analysis():
         #     t = item.tolist()
         i["Points"] = converted
 
-    # for item in data:
-
-    # width, height = (480, 860)
     return render_template("DTL_analysis.html", results=res)
 
 

@@ -16,8 +16,6 @@ def find_stop_point(arr):
     """
     Function to return a local minimum around maximum value
     """
-    # NOTE: This may be where the DTL view is failing, as this cacls the end of backswing, but in reality it doesn't
-    # due to inconsistencies in the data
     max_index = arr.argmax()
 
     for i in range(max_index, 0, -1):
@@ -38,14 +36,6 @@ def calculate_acceleration(filled):
         except:
             print("None value encountered")
 
-    # Plot the acceleration curve
-    # i = np.arange(len(res))
-    # plt.plot(i, res, label="Movement per frame")
-    # plt.ylabel("Movement (pix/frame)")
-    # plt.xlabel("Frame")
-    # plt.legend()
-    # plt.show()
-
     # Smoothen this to make the classification easier
     # TODO: This savgol filer parameters could be changed if the frame rate is differnet (i.e. slo-mo camera), this result
     # doesnt turn out similar in slo-mo video
@@ -57,35 +47,32 @@ def calculate_acceleration(filled):
     kernel = np.ones(kernel_size) / kernel_size
     data_convolved_10 = np.convolve(res, kernel, mode='same')
 
-    # i = np.arange(len(data_convolved_10))
-    # plt.plot(i, data_convolved_10, label="SMOOTHENED Movement per frame")
-    # plt.ylabel("Movement (pix/frame)")
-    # plt.xlabel("Frame")
-    # plt.legend()
-    # plt.show()
-
     return data_convolved_10
 
 
 # Variable definitions
 pose = PoseEstimation()
-arr = []
 arr2 = []
 isMac = config.isMac()
 
 
 class Synchronizer:
-    def __init__(self, face_on):
+    def __init__(self, face_on, dtl):
         self.fo_cap = face_on
-        # self.dtl_cap = dtl
+        self.dtl_cap = dtl
+
+        self.arr = []
 
     def initial_playthrough(self):
         """
         Initial play of the video to analyse feature positioning
         """
         while self.fo_cap.isOpened():
-        # while self.fo_cap.isOpened() or self.dtl_cap.isOpened():
             ret, frame = self.fo_cap.read()
+            # try:
+            #     ret2, frame2 = self.dtl_cap.read()
+            # except:
+            #     print("second file not opened")
 
             # End play back if end of video
             if not ret:  # Need to uclude " or not ret2" in conditional:
@@ -100,15 +87,15 @@ class Synchronizer:
             #     frame2 = cv.rotate(frame2, cv.ROTATE_180)
 
             try:
-                arr.append(pose.get_left_wrist(frame))
+                self.arr.append(pose.get_left_wrist(frame))
                 # arr2.append(pose.get_left_wrist(frame2))
             except:
-                arr.append([None, None])
+                self.arr.append([None, None])
                 # arr2.append([None, None])
 
             # cv.imshow("Face On", frame)
             # cv.imshow("Down The Line", frame2)
-            cv.waitKey(5)
+            # cv.waitKey(5)
 
         # Restart video
         self.fo_cap.set(cv.CAP_PROP_POS_FRAMES, 0)
@@ -129,7 +116,7 @@ class Synchronizer:
         fourcc = cv.VideoWriter_fourcc(*'mp4v')
 
         # out = cv.VideoWriter("video/synced/synced-a.mp4", fourcc, fps, (width, height))
-        out = cv.VideoWriter("../video/temp_parsed.mp4", fourcc, fps, (width, height))
+        out = cv.VideoWriter("video/temp_parsed.mp4", fourcc, fps, (width, height))
         # out2 = cv.VideoWriter("video/synced/synced-b.mp4", fourcc, fps, (width, height))
 
         # Get 25 frames either side of top of backswing from these indices
@@ -138,12 +125,6 @@ class Synchronizer:
             # Read and write video between these frames
             self.fo_cap.set(cv.CAP_PROP_POS_FRAMES, i)
             ret, frame = self.fo_cap.read()
-            # Display the current frame
-            # cv.imshow('Video', frame)
-
-            # Wait for a key press to move to the next frame
-            if cv.waitKey(25) & 0xFF == ord('q'):
-                break
             if not isMac:
                 frame = cv.rotate(frame, cv.ROTATE_180)
             out.write(frame)
@@ -160,6 +141,7 @@ class Synchronizer:
         out.release()
         # out2.release()
         self.fo_cap.release()
+        return [a-40, a+40]
         # self.dtl_cap.release()
 
     def main(self):
@@ -173,22 +155,22 @@ class Synchronizer:
         self.initial_playthrough()
 
         # Calculate acceleration curves
-        acc = calculate_acceleration(arr)
+        acc = calculate_acceleration(self.arr)
         # acc2 = calculate_acceleration(arr2)
 
         # Plot the acceleration curve
-        i = np.arange(len(acc))
-        plt.plot(i, acc, label="Movement per frame")
-        plt.ylabel("Movement (pix/frame)")
-        plt.xlabel("Frame")
-        plt.legend()
-        plt.show()
+        # i = np.arange(len(acc))
+        # plt.plot(i, acc, label="Movement per frame")
+        # plt.ylabel("Movement (pix/frame)")
+        # plt.xlabel("Frame")
+        # plt.legend()
+        # plt.show()
 
         # Find end of backswing (when acceleration is zero)
         a = find_stop_point(acc)
         b = find_stop_point(np.array([0, 1]))  # find_stop_point(acc2)
 
-        self.save_synced_videos(a, b)
+        return self.save_synced_videos(a, b)
 
         # new_a = cv.VideoCapture('video/synced/synced-a.mp4')
         # new_b = cv.VideoCapture('video/synced/synced-b.mp4')
@@ -206,7 +188,8 @@ class Synchronizer:
         #     cv.imshow("Down The Line", frame2)
         #     cv.waitKey(5)
 
+
 if __name__ == "__main__":
-    temp = cv.VideoCapture("../videos/sample/sample2-2.MOV")
-    sync = Synchronizer(temp)
+    temp = cv.VideoCapture("../video/temp.MOV")
+    sync = Synchronizer(temp, None)
     sync.main()

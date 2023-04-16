@@ -1,6 +1,5 @@
 # Required imports
 # Helper import
-
 import cv2 as cv
 import numpy as np
 
@@ -22,6 +21,7 @@ STAGE_PATH = [SETUP_FRAME, TAKEAWAY_FRAME, BACKSWING_FRAME, DOWNSWING_FRAME, IMP
 draw = Graph()
 
 setup_knee_angle = 0
+
 
 global res
 res = []

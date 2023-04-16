@@ -133,8 +133,7 @@ def calculate_acceleration(filled):
             p2 = filled[index - 1]
             try:
                 dist = math.dist(p1, p2)
-            except:
-                # Unexpected none value encountered just use same value as previous occurrence
+            except:  # case when result is None
                 dist = acc[len(acc) - 1]
             acc.append(dist)
 
@@ -383,8 +382,8 @@ class GraphHelper:
         # tempY = [val[1] for val in temp]
         # # # TODO: t - val[1] seems to shove it below the y axis so fix this
         # # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        # fig, ax = plt.subplots()
-        # ax.invert_yaxis()
+        # # fig, ax = plt.subplots()
+        # # ax.invert_yaxis()
         # plt.plot(tempX, tempY, label="Hand track")
         # plt.margins(1, 2.8)
         # plt.ylabel("Y coord")

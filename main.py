@@ -13,15 +13,15 @@
 #
 # # Retrieve input file from run-time ram
 # parser = argparse.ArgumentParser(description='This program shows how to use background subtraction methods provided by \
-#                                               OpenCV. You can process both videos and images.')
+#                                               OpenCV. You can process both video and images.')
 # parser.add_argument('--input', type=str, help='Path to a video or a sequence of image.',
-#                     default="./videos/samples/sample0.mov")
+#                     default="./video/samples/sample0.mov")
 # args = parser.parse_args()
 #
 # print("Retrieiving video from files")
 #
 # capture = cv.VideoCapture(args.input)
-# compare_capture = cv.VideoCapture("./videos/tiger.mp4")
+# compare_capture = cv.VideoCapture("./video/tiger.mp4")
 #
 # if not capture.isOpened():
 #     print("Input file failed to open, there is a file path error.")
@@ -362,16 +362,16 @@ from helper_funcs.pose_estimation import PoseEstimation as Pose
 # Retrieve input file from run-time ram
 # parser = argparse.ArgumentParser(description='This program shows how to improve a golf swing using OpenCV methods.')
 # parser.add_argument('--input', type=str, help='Path to a video.',
-#                     default="./videos/samples/sample0.mov")
+#                     default="./video/samples/sample0.mov")
 # parser.add_argument('--input1', type=str, help='Path to a video.',
-#                     default="./videos/samples/sample7.mov")
+#                     default="./video/samples/sample7.mov")
 # args = parser.parse_args()
 
 print("Retrieiving video from files")
 
 # frontal_view = cv.VideoCapture(args.input)
 # dtl_view = cv.VideoCapture(args.input1)
-# compare_capture = cv.VideoCapture("./videos/tiger.mp4")
+# compare_capture = cv.VideoCapture("./video/tiger.mp4")
 
 # if not frontal_view.isOpened() or not dtl_view.isOpened():
 #     print("Input file failed to open, there is a file path error.")
@@ -580,13 +580,13 @@ def down_the_line():
 
 
 if __name__ == "__main__":
-    # Synchornise the 2 angles of the videos.
+    # Synchornise the 2 angles of the video.
     # TODO: Uncomment this and change to parser not sync
     # sync = Synchronizer(frontal_view, dtl_view)
     # sync.main()
 
-    # frontal_view = cv.VideoCapture('videos/synced/synced-a.mp4')
-    # dtl_view = cv.VideoCapture('videos/synced/synced-b.mp4')
+    # frontal_view = cv.VideoCapture('video/synced/synced-a.mp4')
+    # dtl_view = cv.VideoCapture('video/synced/synced-b.mp4')
 
     # play the video, main loop
     # main_loop()

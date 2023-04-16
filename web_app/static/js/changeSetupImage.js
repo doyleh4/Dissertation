@@ -13,7 +13,7 @@ function changeImage(path, id, button, data){
     field.forEach(function(f){
         data.forEach(function(item){
             if (button.innerHTML == item.Check){
-                f.innerHTML = item.Fix;
+                f.innerHTML = "Description: " + item.Description + "<br /><br />Fix: " + item.Fix;
                 f.style.backgroundCOlor = "white"
             };
         });

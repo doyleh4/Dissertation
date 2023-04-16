@@ -1,5 +1,5 @@
 """
-This script is used to extract frames from the videos and save them as a JPG, top be used in testing
+This script is used to extract frames from the video and save them as a JPG, top be used in testing
 
 """
 import cv2 as cv
