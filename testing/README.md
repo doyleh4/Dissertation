@@ -1,6 +1,9 @@
-This folder contains the testing for the project.
+# Test Framework
 
-Ground truth was gathered manually for frames [0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70]
-and split up into various folders for each limb. See folder structure and file names for
-more info. 
+This is a directory containing the test cases for the application. Using the same Python environment as before (with all
+the pip requirements) run each file by running the
 
+1) python <file.py>
+   command.
+
+These files use the data stored in the folder as input and output files, so there will be no extra cases.

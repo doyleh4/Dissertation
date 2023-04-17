@@ -3,11 +3,12 @@ import math
 
 # Required imports
 import cv2 as cv
-import my_config.config as config
 import numpy as np
 import tqdm
+
+import web_app.my_config.config as config
 # Custom class imports
-from helper_funcs.pose_estimation import PoseEstimation
+from web_app.helper_funcs.pose_estimation import PoseEstimation
 
 
 def find_stop_point(arr):

@@ -1,19 +1,19 @@
 # Required imports
 import sys
+
 import cv2 as cv
 
 # Config Class Imports
-import my_config.config as config
-
+import web_app.my_config.config as config
 # Custom class imports
-from helper_funcs.analyse_swing import SwingImageAnalyser
-from helper_funcs.ball_detector import detect
-from helper_funcs.classify_stage import StageClassifier
-from helper_funcs.data_record import DTLDataRecord as DTLData
-from helper_funcs.data_record import FODataRecord as FOData
-from helper_funcs.feedback_system import NegativeFeedback as Feedback
-from helper_funcs.graphing import GraphHelper as Graph
-from helper_funcs.pose_estimation import PoseEstimation as Pose
+from web_app.helper_funcs.analyse_swing import SwingImageAnalyser
+from web_app.helper_funcs.ball_detector import detect
+from web_app.helper_funcs.classify_stage import StageClassifier
+from web_app.helper_funcs.data_record import DTLDataRecord as DTLData
+from web_app.helper_funcs.data_record import FODataRecord as FOData
+from web_app.helper_funcs.feedback_system import NegativeFeedback as Feedback
+from web_app.helper_funcs.graphing import GraphHelper as Graph
+from web_app.helper_funcs.pose_estimation import PoseEstimation as Pose
 
 # Retrieve input file from run-time ram
 # parser = argparse.ArgumentParser(description='This program shows how to improve a golf swing using OpenCV methods.')

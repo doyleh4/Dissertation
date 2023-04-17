@@ -2,9 +2,10 @@ import math
 import os
 
 import cv2 as cv
-import my_config.config as config
 import numpy as np
 from scipy.signal import savgol_filter
+
+import web_app.my_config.config as config
 
 """
 NCode used for testing but not used in the end

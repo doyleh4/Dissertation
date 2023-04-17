@@ -12,7 +12,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # Custom classes
-from helper_funcs.pose_estimation import PoseEstimation as Pose
+from web_app.helper_funcs.pose_estimation import PoseEstimation as Pose
 
 debug = False
 
@@ -33,8 +33,6 @@ frame_indices = [0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70]
 
 # Pose class
 pose = Pose()
-
-
 
 LEFT_WRIST_COLOUR_LOW = [0, 0, 250]  # bgr
 LEFT_WRIST_COLOUR_UP = [5, 5, 255]  # bgr
@@ -102,6 +100,7 @@ LEFT_SHOULDER_COLOUR_UP = [152, 152, 152]  # bgr
 ls_t = 0
 ls_f = 0
 
+
 def test_left_shoulder(img, ground_truth):
     global ls_f, ls_t
     coords = pose.get_left_shoulder(img)
@@ -114,7 +113,7 @@ def test_left_shoulder(img, ground_truth):
         ls_t += 1
     else:
         # TODO: increment false positive
-        ls_f =+ 1
+        ls_f = + 1
 
     if debug:
         temp = ground_truth.copy()
@@ -350,7 +349,6 @@ def test_right_knee(img, ground_truth):
         # TODO: increment false positive
         rk_f += 1
 
-
     if debug:
         temp = ground_truth.copy()
 
@@ -432,7 +430,7 @@ def test_right_toe(img, ground_truth):
     if np.all(colour >= RIGHT_TOE_COLOUR_LOW) and np.all(colour <= RIGHT_TOE_COLOUR_UP):
         t_t += 1
     else:
-       t_f += 1
+        t_f += 1
 
     if debug:
         temp = ground_truth.copy()
@@ -447,6 +445,7 @@ NOSE_COLOUR_UP = [78, 255, 5]  # bgr
 
 n_t = 0
 n_f = 0
+
 
 def test_nose(img, ground_truth):
     global n_f, n_t
@@ -523,8 +522,6 @@ if __name__ == "__main__":
     print("Running Tests")
 
     for frame_index in frame_indices:
-        if frame_index != 63:
-            continue
         img = cv.imread("{}/{}.jpg".format(frame_dir, frame_index))
         ground_truth_img = cv.imread("{}/{}.jpg".format(ground_truth_dir, frame_index))
         #
@@ -566,4 +563,4 @@ if __name__ == "__main__":
 
     s = sum(true_items)
     f = sum(false_items)
-    print("Recall: {}".format(str(s/(s+f))))
+    print("Recall: {}".format(str(s / (s + f))))

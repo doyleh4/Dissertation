@@ -4,9 +4,9 @@ import cv2 as cv
 import numpy as np
 
 # Custom class imports
-from helper_funcs.ball_detector import detect
-from helper_funcs.graphing import GraphHelper as Graph
-from helper_funcs.pose_estimation import AnalysePose
+from web_app.helper_funcs.ball_detector import detect
+from web_app.helper_funcs.graphing import GraphHelper as Graph
+from web_app.helper_funcs.pose_estimation import AnalysePose
 
 SETUP_FRAME = ("swing_stages/face_on/setup.jpg", "swing_stages/dtl/setup.jpg")
 TAKEAWAY_FRAME = ("swing_stages/face_on/takeaway.jpg", "swing_stages/dtl/takeaway.jpg")
