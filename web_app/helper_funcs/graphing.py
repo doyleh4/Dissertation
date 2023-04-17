@@ -3,14 +3,8 @@ import math
 
 import cv2 as cv
 import numpy as np
-from matplotlib import pyplot as plt
 
 
-# from helper_funcs.classify_stage import calculate_acceleration
-
-
-# def normalise(x, y, width, height):
-#     return [int(x * width), int(y * height)]
 def smooth_line(points, window_size=5):
     line = np.array(points)
     window = np.ones(int(window_size)) / float(window_size)
@@ -36,34 +30,11 @@ def remove_outliers(data):
     outliers = np.argwhere(z_scores > thresh)
     indices = np.unique(outliers[:, 0])
 
-    # We need to return the y values as negative, to offset the differnce of MATPLOTLIB and opencv
-    # arr = coords[indices]
-    # arr[:, 1] = -arr[:, 1]
-
-    # Keep only indices (makes array shorter)
-    # res = coords[indices]
-    # res = np.vstack([res, [None, None]])
-
     # Change index not in indices to None
     res = np.empty_like(coords, dtype=object)
     res[indices, :] = coords[indices, :]
 
     return res
-
-    # # DEBUG Stuff # TODO delete this
-    # t = np.arange(coords.shape[0])
-    # missing = np.setxor1d(t, indices)
-    #
-    # print("Z scores at indexes are")
-    # for i, index in enumerate(missing):
-    #     print("{}:{}".format(index, z_scores[index]))
-    #
-    # temp_data = np.delete(coords, indices, axis=0)
-    # x = [val[0] for val in temp_data]
-    # y = [val[1] for val in temp_data]
-    # plt.scatter(x, y)
-    # plt.margins(1, 2.8)
-    # plt.show()
 
 
 def estimate_missing_points(points):
@@ -74,42 +45,23 @@ def estimate_missing_points(points):
     :param filtered:
     :return: estimated array
     """
-    # Using mean imputation for missing rows.
-    # mean_imputer = SimpleImputer(strategy="mean")
-    # data_imputed = mean_imputer.fit_transform(filtered)
 
-    # Using variance thresholding
-    # var_thresh = VarianceThreshold(threshold=0.1)
-    # data_imputed = var_thresh.fit_transform(filtered)
-
-    # # Use KNN to estimate the data from the mean
-    # knn_imputer = KNNImputer(n_neighbors=5, weights="distance")
-    # knn_imputer.fit(filtered)
-    #
-    # res = knn_imputer.transform(filtered)
-
-    # Iterate over the points
+    # Iterate over the points and
     for i in range(1, len(points) - 1):
         # If the current point is missing
         if points[i][0] is None and points[i][1] is None:
-            # Find the closest known points before and after
+            # Find the closest known point indices before and after
             j = i - 1
             while j >= 0 and points[j][0] is None and points[j][1] is None:
                 j -= 1
             k = i + 1
             while k < len(points) and points[k][0] is None and points[k][1] is None:
                 k += 1
-            # Calculate the slope and intercept between the known points
-            # x1, y1 = points[j]
-            # x2, y2 = points[k]
-            # m = (y2 - y1) / (x2 - x1)
-            # b = y1 - m * x1
-            # # Estimate the missing point using the linear equation
-            # # x = points[i - 1, 0]
-            # y = m * (i + 1) + b
-            # points[i] = [i + 1, y]
 
-            if (k < len(points)):
+            # J corresponds to last known index, k is next known index
+
+            # Fill in the points according to the line connect j and k
+            if k < len(points):
                 start_point = points[j]
                 end_point = points[k]
 
@@ -136,7 +88,6 @@ def calculate_acceleration(filled):
             except:  # case when result is None
                 dist = acc[len(acc) - 1]
             acc.append(dist)
-
     return acc
 
 
@@ -231,7 +182,6 @@ class GraphHelper:
         # TODO: Update this to detect in the first frame and track it after that
         cv.ellipse(temp, ball, (0, 0, 255), 2)
 
-        # cv.imshow("Expanded checks", temp)
         return temp
 
     def draw_dtl_checks(self, frame, points, ball):
@@ -270,97 +220,26 @@ class GraphHelper:
         cv.line(temp, points[8], points[9], (255, 0, 255), 2)  # right shoulder to elbow
 
         # Draw the balls location (for now)
-        # TODO: Update this to detect in the first frame and track it after that
         # cv.ellipse(temp, ball, (0, 0, 255), 2)
 
         # cv.imshow("Expanded checks", temp)
         return temp
 
     def show_graphs(self, data, dtl_data, t):
-        # fig, ax = plt.subplots()
-        # ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
-        # #
-        # tempX = [val[0] for val in dtl_data.r_wrist]
-        # tempY = [val[1] for val in dtl_data.r_wrist]
-        # # TODO: t - val[1] seems to shove it below the y axis so fix this
-        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        # curve, = plt.plot(tempX, tempY)
-        # plt.scatter(tempX[0], tempY[0])
-        # plt.show()
-        #
+        # Remove outlier data from our dataset
         filtered = remove_outliers(data.data['lw'])  # Delete outlier points
         filtered2 = remove_outliers(dtl_data.r_wrist)
-        # tempX = [val[0] for val in filtered2]
-        # tempY = [val[1] for val in filtered2]
-        # # TODO: t - val[1] seems to shove it below the y axis so fix this
-        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        # curve, = plt.plot(tempX, tempY)
-        # plt.scatter(tempX[0], tempY[0])
 
-        # Fit a curve to those points
-        # coeffs = np.polyfit(tempX, tempY, 29)
-        # x_fit = np.linspace(min(tempX), max(tempX), 100)
-        # y_fit = np.polyval(coeffs, x_fit)
-        # plt.plot(x_fit, y_fit, "r")
-        # plt.show()
-
-        # # TODO: Move this above, just want both graphs for cdev
+        # Estimate the points we just removed
         filled = estimate_missing_points(filtered)
         filled2 = estimate_missing_points(filtered2)
-        # fig, ax = plt.subplots()
-        # tempX = [val[0] for val in filled2]
-        # tempY = [val[1] for val in filled2]
-        # ax.invert_yaxis()  # Inverting y axis to allow the coordinate system match OpenCV
 
-        # Calulate these accelerations
+        # Calculate these accelerations
         acceleration = calculate_acceleration(filled)
         acceleration2 = calculate_acceleration(filled2)
 
-        # Display these acceleration graphs
-        # y = np.arange(len(acceleration))
-        # plt.plot(y, acceleration, label="Face on")
-        #
-        # y = np.arange(len(acceleration2))
-        # plt.plot(y, acceleration2, label="Down the line")
-        # plt.legend()
-        # plt.show()
-
-        # tempX = [val[0] for val in filtered2]
-        # tempY = [val[1] for val in filtered2]
-        # # TODO: t - val[1] seems to shove it below the y axis so fix this
-        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        # curve, = plt.plot(tempX, tempY)
-        # plt.scatter(tempX[0], tempY[0])
-
-        # tempX = [val[0] for val in filtered2]
-        # tempY = [val[1] for val in filtered2]
-        # # TODO: t - val[1] seems to shove it below the y axis so fix this
-        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        # curve, = plt.plot(tempX, tempY)
-        # plt.scatter(tempX[0], tempY[0])
-
-        plt.show()
-
         self.set_processed_fo_data(acceleration)
         self.set_processed_dtl_data(acceleration2)
-        # #
-        # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        # curve, = plt.plot(tempX, tempY)
-        # plt.scatter(tempX[0], tempY[0])
-        # y_vals = curve.get_ydata()
-        # plt.show()
-        #
-        # tempX = data.data["shoulder_slope"]
-        # plt.plot(tempX)
-        # plt.show()
-        #
-        # tempX = data.data["lead_leg_to_shoulder"]
-        # plt.plot(tempX)
-        # plt.show()
-        #
-        # tempX = data.data["acc"]
-        # plt.plot(tempX)
-        # plt.show()
 
     def get_acceleration(self, data):
         """
@@ -368,44 +247,19 @@ class GraphHelper:
         :param data:
         :return:
         """
+        # Remove outlier data from our dataset
         try:
             filtered = remove_outliers(data.data['lw'])  # Delete outlier points
         except:
             filtered = remove_outliers(data.r_wrist)
-        # Yes these are 2 different data types. Its horrible I know, im tired leave me alone :(
 
+        # Estimate the points we just removed
         filled = estimate_missing_points(filtered)
-
-        # Graph the data
-        # temp = filled
-        # tempX = [val[0] for val in temp]
-        # tempY = [val[1] for val in temp]
-        # # # TODO: t - val[1] seems to shove it below the y axis so fix this
-        # # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        # # fig, ax = plt.subplots()
-        # # ax.invert_yaxis()
-        # plt.plot(tempX, tempY, label="Hand track")
-        # plt.margins(1, 2.8)
-        # plt.ylabel("Y coord")
-        # plt.xlabel("X coord")
-        # plt.legend()
-        # plt.show()
 
         # Note: this is only needed in website version of app. Runs ok when normal
         filled = np.delete(filled, -1, axis=0)
-        # Calulate these accelerations
+        # Caclulate these accelerations
         acceleration = calculate_acceleration(filled)
-
-        # Graph the data
-        # i = np.arange(len(acceleration))
-        # # # TODO: t - val[1] seems to shove it below the y axis so fix this
-        # # plt.margins(1, 2.8)  # set margins to approximately be the same as opencv window
-        # plt.plot(i, acceleration, label="Distance from previous point")
-        # plt.ylabel("Movement (pixel/frame)")
-        # plt.xlabel("Frame")
-        # plt.legend()
-        # plt.show()
-
         return acceleration
 
     # Visualise the checks
@@ -538,7 +392,6 @@ class GraphHelper:
     def elbow_pointing_down(self, frame, elbow, shoulder):
         temp = frame.copy()
 
-        # TODO: Again this is a check to see the left arm plane (inline with shoulder slope), not just shoulder slope
         cv.circle(temp, shoulder, 6, (0, 0, 255), -1)
         cv.circle(temp, elbow, 6, (0, 0, 255), -1)
 
@@ -548,10 +401,8 @@ class GraphHelper:
         cv.imwrite("video/elbow_pointing_down.jpg", temp)
 
     def shoulders_closed(self, frame, shoulders):
-        # Very similar to shoulder slope above so maybe change
         temp = frame.copy()
 
-        # TODO: Again this is a check to see the left arm plane (inline with shoulder slope), not just shoulder slope
         cv.circle(temp, shoulders[0], 6, (0, 0, 255), -1)
         cv.circle(temp, shoulders[1], 6, (0, 0, 255), -1)
 

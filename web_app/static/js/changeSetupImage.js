@@ -9,7 +9,7 @@ function changeImage(path, id, button, data){
     field = Array.prototype.slice.call(field); // Convert NodeList to array
 
     // button is the button that was clicked, which has innerHTML of the check 
-    // Yes this is doing it for all modals. TODO: Need to fix this at some point
+    // Yes this is doing it for all modals.
     field.forEach(function(f){
         data.forEach(function(item){
             if (button.innerHTML == item.Check){

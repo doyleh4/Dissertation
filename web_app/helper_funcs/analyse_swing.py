@@ -22,7 +22,6 @@ draw = Graph()
 
 setup_knee_angle = 0
 
-
 global res
 res = []
 
@@ -52,7 +51,6 @@ def verify_leg_width(pose, img):
     :param img:
     :return:
     """
-    # TODO: Check that all these Checks and LeadsTo allign
     check = {
         "Check": "Legs Shoulder Width Apart",
         "Stage": "Setup",
@@ -327,7 +325,6 @@ def run_setup_checks(fo_img, dtl_img):  # img and frame here are interchangeable
 
     # Verify the knee is slightly bent 
     verify_knee_angle(pose, dtl_img, "Setup")
-    # TODO: Verify the back is straight
 
 
 def run_takeaway_checks(fo_img, dtl_img):
@@ -399,9 +396,6 @@ def verify_elbow_pointing_down(pose, dtl_img):
 
     draw.elbow_pointing_down(dtl_img, elbow, wrist)
 
-    # TODO: This simply checks if its pointing down, change it so it checks pointing down and left (probable a range
-    #  of vals)
-    # TODO: Change this to be correct. Used to check the right hand to verify these numbers
     if slope < 0:
         check["Description"] += "Lead elbow pointing down and to the left, this will aid in being more consistent " \
                                 "between your swings"
@@ -541,7 +535,6 @@ def run_dtl_setup_checks(dtl_img):  # img and frame here are interchangeable
 
     # Verify the knee is slightly bent
     verify_knee_angle(pose, dtl_img, "Setup")
-    # TODO: Verify the back is straight
 
 
 def run_dtl_takeaway_checks(dtl_img):
@@ -570,9 +563,6 @@ def run_dtl_followthrough_checks(dtl_img):
 
 
 class DTLAnalyser:
-    # This is very messy and repetitive but im on a time constraints.
-    # TODO: Tidy this up
-
     def analyse(self):
         res.clear()
         setup_img = "./video/setup.jpg"
@@ -589,15 +579,6 @@ class DTLAnalyser:
             # Read image from opencv
             # try:
             dtl_img = cv.imread(dtl)
-
-            # Show image and scale size to screen. Going to be different between my Mac and Windows. So fix this, but
-            # doesn't matter to the functionality at the end.
-            # TODO: Can we scale this to fit on the monitor as opposed to resizing image
-            # dtl_img = cv.resize(dtl_img, (int(dtl_img.shape[1] / 2.5), int(dtl_img.shape[0] / 2.5)))
-            # cv.imshow('image', img)
-
-            # except:
-            #     print("Error reading image")
 
             # depending on what stage of the swing we are checking call different functions
             if dtl == setup_img:
@@ -620,7 +601,6 @@ class DTLAnalyser:
 def run_fo_setup_checks(img):
     # Uses the pose_estimation file, with the constructor for the analyse class
     pose = AnalysePose(img)
-    # print(pose.results)
 
     # draw.draw_pose_results(fo_img, pose.results)
     # Verify the legs are shoulder width apart
@@ -652,9 +632,6 @@ def run_fo_followthrough_checks(img):
 
 
 class FOAnalyser:
-    # This is very messy and repetitive but im on a time constraints.
-    # TODO: Tidy this up
-
     def analyse(self):
         res.clear()
         setup_img = "./video/setup.jpg"
@@ -671,15 +648,6 @@ class FOAnalyser:
             # Read image from opencv
             # try:
             img = cv.imread(dtl)
-
-            # Show image and scale size to screen. Going to be different between my Mac and Windows. So fix this, but
-            # doesn't matter to the functionality at the end.
-            # TODO: Can we scale this to fit on the monitor as opposed to resizing image
-            # dtl_img = cv.resize(img, (int(img.shape[1] / 2.5), int(img.shape[0] / 2.5)))
-            # cv.imshow('image', img)
-
-            # except:
-            #     print("Error reading image")
 
             # depending on what stage of the swing we are checking call different functions
             if dtl == setup_img:

@@ -11,22 +11,6 @@ class NegativeFeedback:
         :param input:
         :return:
         """
-
-        """
-        check = {
-            "Check": "Trail Elbow in Right Direction",
-            "Stage": "Backswing",
-            "Problem": "Consistency",
-            "Description": "",  # Description of what's being done in the swing
-            "Fix": "",  # Filled in by the advice feedback system
-            "Points": [],
-            # all these below used as metadata
-            "isMistake": False,
-            "isRootCause": False,  # if this mistake leads to another we will need to check for the others
-            "LeadsTo": [],
-            "isProcessed": False  # once check has been done, mark as true
-        }
-        """
         print("Processing the results from the analysis to suggest improvements")
         res = []
 
@@ -39,12 +23,6 @@ class NegativeFeedback:
                 else:
                     item["Fix"] = self.process_recursive(item)
                     item["isProcessed"] = True
-
-                # else:
-                #     # for r in item["LeadsTo"]:
-                #     print("t")
-                #     # TODO: Check if m is in input and advise
-                # item["fix"] = drill  # fill in the field for the input data
 
     def process_solo_mistake(self, item):
         """
@@ -207,7 +185,5 @@ class NegativeFeedback:
                 self.data[index[0]]["Fix"] = res
                 self.data[index[0]]["isProcessed"] = True
 
-            # else:
-            #     continue  # Next loop as we did not see this problem in
             mistake_titles.remove(title)
         return self.process_solo_mistake(item)

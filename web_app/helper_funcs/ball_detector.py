@@ -1,28 +1,8 @@
 import cv2 as cv
 import numpy as np
 
-# template = cv.imread("template.JPG")
-
 
 def detect(frame):
-    # Template matching works but isnt the best because of scale
-
-    # temp = frame.copy()
-    #
-    # gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    # t_gray = cv.cvtColor(template, cv.COLOR_BGR2GRAY)
-    #
-    # res = cv.matchTemplate(gray, t_gray, cv.TM_CCOEFF_NORMED)
-    #
-    # _, max_val, _, max_loc = cv.minMaxLoc(res)
-    #
-    # h, w, _ = template.shape
-    # top_left = max_loc
-    # bottom_right = (top_left[0] + w, top_left[1] + h)
-    # cv.rectangle(temp, top_left, bottom_right, (0, 0, 255), 2)
-    #
-    # cv.imshow("temp", temp)
-
     gray = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
 
     blurred = cv.GaussianBlur(gray, (3, 3), 0)
@@ -31,8 +11,6 @@ def detect(frame):
 
     kernel = np.ones((3, 3), np.uint8)
     mask = cv.morphologyEx(mask, cv.MORPH_OPEN, kernel)
-
-    # cv.imshow("temp", mask)
 
     contours, hierarchy = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
@@ -52,16 +30,16 @@ def detect(frame):
     try:
         aspect_ratios = []
         for ellipse in ellipses:
-            major_axis_length = ellipse[1][0]
-            minor_axis_length = ellipse[1][1]
-            aspect_ratio = major_axis_length / minor_axis_length
+            length = ellipse[1][0]
+            height = ellipse[1][1]
+            aspect_ratio = length / height
             aspect_ratios.append(aspect_ratio)
 
-        index_of_most_circular_ellipse = aspect_ratios.index(min(aspect_ratios, key=lambda x: abs(x - 1)))
-        most_circular_ellipse = ellipses[index_of_most_circular_ellipse]
+        index = aspect_ratios.index(min(aspect_ratios, key=lambda x: abs(x - 1)))
+        most_circular = ellipses[index]
 
         # cv.ellipse(frame, most_circular_ellipse, (255, 0, 0), 3)
-        return most_circular_ellipse
+        return most_circular
     except:
         return None
 

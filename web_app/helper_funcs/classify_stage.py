@@ -2,11 +2,9 @@ import math
 import os
 
 import cv2 as cv
-import numpy as np
-from matplotlib import pyplot as plt
-from scipy.signal import savgol_filter
-
 import my_config.config as config
+import numpy as np
+from scipy.signal import savgol_filter
 
 """
 NCode used for testing but not used in the end
@@ -33,21 +31,8 @@ DTL = "dtl"
 
 
 def smoothen_curve(filled):
-    # res = []
-    # for i in range(1, len(filled) - 1):
-    #     try:
-    #         dist = math.dist(filled[i - 1], filled[i])
-    #         res.append(dist)
-    #     except:
-    #         print("None value encountered")
-
-    # Smoothen this to make the classification easier
-    # TODO: This savgol filer parameters could be changed if the frame rate is differnet (i.e. slo-mo camera), this result
-    # doesnt turn out similar in slo-mo video
+    # Smoothen this to make the classification easier# doesnt turn out similar in slo-mo video
     res = savgol_filter(filled, 31, 3)  # window size 31, polynomial order 3 - good for regular speed
-    # res = savgol_filter(filled, 30, 3)  # window size 30, polynomial order 3 - good for regular speed
-    # res = savgol_filter(res, 180, 3)  # (expected shape, but bumpy) - good for slo-mo but needs more experimentation
-    # res = savgol_filter(res, 12, 3)
 
     kernel_size = 9
     kernel = np.ones(kernel_size) / kernel_size
@@ -67,15 +52,6 @@ def calc(data):
 
 
 class StageClassifier:
-    # def __init__(self, fo_data, dtl_data, video_feed, video_feed_b):
-    #     self.data = fo_data
-    #     self.data2 = dtl_data
-    #     self.video_a = video_feed
-    #     self.video_b = video_feed_b
-    #
-    #     self.video_a.set(cv.CAP_PROP_POS_FRAMES, 0)
-    #     self.video_b.set(cv.CAP_PROP_POS_FRAMES, 0)
-
     def __init__(self, data, video_feed):
         """
          Used in single processing on front-end
@@ -93,16 +69,6 @@ class StageClassifier:
         :return:
         """
         acc = smoothen_curve(self.data)
-
-        # temp = np.arange(len(acc))
-        #
-        # plt.plot(temp, acc)
-        # plt.xlabel("Frame")
-        # plt.ylabel("Movement (px)")
-        # plt.title("Movement Difference of wrist")
-        #
-        # plt.savefig('plot.png')
-
 
         self.classify_stages(acc, self.video)  # pass face on data and save
 
@@ -158,7 +124,6 @@ class StageClassifier:
 
         # Get the top of the backswing by detecting the next low apex
         # Note: Due to the smoothening of the graph we need to offset this by roughly 5 frames
-        # TODO: Fix this so it doesnt have to be offset
         current_trend = "up"
         if state == 2:
             prev_index = index
@@ -204,26 +169,14 @@ class StageClassifier:
 
             state += 1
 
-            # TODO: Add a classfier for downswing!
         if state == 3:
             start_point = np.array([index, data[index]])
             end_point = np.array([np.argmax(data), np.max(data)])
-            # index = np.mean([start_point, end_point], axis=0)[0]
-            # points = np.linspace(start_point, end_point, 2, end_point=False)
-            # index = points[int(3 / 4 * 2)]  # Get point 3/4 the way
 
             diff = end_point[0] - start_point[0]
             point = start_point[0] + ((9 / 10) * diff)  # Get the 3/4 marker
             index = int(point) + 1  # get the next frame (works better as its closer to the impact point)
             arr.append(index)
-
-            # print(index)
-            # y = np.arange(len(data))
-            # plt.plot(y, data)
-            # plt.scatter(start_point[0], start_point[1])
-            # plt.scatter(end_point[0], end_point[1])
-            # plt.scatter([index], data[index])
-            # plt.show()
 
             video.set(cv.CAP_PROP_POS_FRAMES, index - state)
             ret, frame = video.read()
@@ -237,17 +190,12 @@ class StageClassifier:
         # part of the swing.
         current_trend = "up"
         if state == 4:
-            # y = np.arange(len(data))
-            # plt.plot(y, data)
-            # plt.scatter(index, data[index])
-            # plt.show()
             for i in range(index, len(data)):  # Allow on offset of 4 for error
                 if data[i] < data[i - 1]:
                     current_trend = "down"
                     index = i + 2  # offset
                     arr.append(index)
                     break  # This is the first min
-            # print("High index is {}".format(str(index)))
 
             # Save frame index before impact
             # TODO: Why do we have to subtract a couple of frames here
@@ -300,35 +248,10 @@ class StageClassifier:
         # plt.show()
 
     def classify(self):
-        # TODO: Delete this unprocessed data is only for dev
-        # t = calc(self.data)
-        # y = np.arange(len(t))
-        # plt.plot(y, t, label="up Face on")
-        #
-        # t = calc(self.data2)
-        # y = np.arange(len(t))
-        # plt.plot(y, t, label="up Down the Line")
-
+        # Smoothen acceleration curves
         acc = smoothen_curve(self.data)
-        # y = np.arange(len(acc))
-        # plt.plot(y, acc, label="Face on")
-
         acc2 = smoothen_curve(self.data2)
-        # y = np.arange(len(acc2))
-        # plt.plot(y, acc2, label="Down the Line")
-        # #
-        # # TODO NOTE: This graph is the one that shows the classification curve of the acceleration. Needs to be in report
-        # plt.legend()
-        # plt.show()
 
+        # Classsify stages
         self.classify_stages(acc, self.video_a, FO)  # pass face on data and save
         self.classify_stages(acc2, self.video_b, DTL)  # pass down the line data and save
-
-        # y = np.arange(len(acc))
-        # plt.plot(y, acc)
-
-        # temp = [acc[x] for x in arr]
-        # plt.scatter(arr, temp)
-        # #
-        # # TODO NOTE: This graph is the one that shows the classification curve of the acceleration. Needs to be in report
-        # plt.show()

@@ -11,6 +11,7 @@
         // Assign data passed by Flask to JS variable
         var data = {{results | tojson }};
         console.log(data);
+
     </script>
 </head>
 <body>
@@ -22,78 +23,23 @@
     </video>
 </div>
 <div class="sidebar">
-    <!--TODO: Allign these items-->
     <div class="sidebar_item">
         <div> SETUP</div>
         <img id="Setup" src="{{ url_for('video', filename='setup.jpg') }}" width="80" , height="140">
         <div class="modal">
-            <!--            <canvas id="canvas"></canvas>-->
             <script>
                  var items = data.filter(function(item) {
                     return item.Stage === "Setup";
                  });
+
             </script>
             <img id="setup_img" src="{{ url_for('video', filename='setup.jpg') }}">
             <div class="fix_text"></div>
             <button onClick="changeImage('/video/setup.jpg', 'setup_img', this, data)">Setup img</button>
-            <button onClick="changeImage('/video/setup_knee_angle.jpg', 'setup_img', this, data)">Knee Flex Setup</button>
+            <button onClick="changeImage('/video/setup_knee_angle.jpg', 'setup_img', this, data)">Knee Flex Setup
+            </button>
             <script> colourButtons(items) </script>
         </div>
-        <!--        <script>-->
-        <!--        TODO: This code draws the points on the image modal, but doesnt work properly so get back to this-->
-        <!--            var results = {{ results | tojson }}-->
-
-        <!--            /* Filter results to only contain setup results */-->
-        <!--            var items = results.filter(function(item) {-->
-        <!--              return item.Stage === "Setup";-->
-        <!--            });-->
-
-        <!--            /* Set up drawing functionality */-->
-        <!--            var image = document.querySelector('.modal img');-->
-        <!--            image.addEventListener('load', function() {-->
-        <!--                var canvas = document.getElementById('canvas');-->
-
-        <!--                canvas.width = image.width;-->
-        <!--                canvas.height = image.height;-->
-
-        <!--                // Place canvas ontop of image-->
-        <!--                canvas.style.position = 'absolute';-->
-        <!--                canvas.style.top = image.offsetTop + 'px';-->
-        <!--                canvas.style.left = image.offsetLeft + 'px';-->
-        <!--                canvas.style.zIndex = "1000";-->
-
-
-        <!--                var modal = document.querySelector('.modal');-->
-        <!--                modal.appendChild(canvas);-->
-
-        <!--                var ctx = canvas.getContext('2d');-->
-        <!--                ctx.setTransform(1, 0, 0, 1, 0, 0);-->
-
-        <!--                // draw on the canvas-->
-        <!--                ctx.strokeStyle = "red";-->
-        <!--                ctx.lineWidth = 2;-->
-        <!--                items.forEach(function(item) {-->
-        <!--                    item.Points.forEach(function(point){-->
-        <!--                        ctx.beginPath(); // start a new path-->
-        <!--                        ctx.arc(point[0], canvas.height - point[1], 5, 0, Math.PI * 2);-->
-        <!--                        ctx.stroke(); // draw the stroke-->
-        <!--                    });-->
-        <!--                });-->
-
-        <!--                var scaler = (432/canvas.width); //432 is width of saved image-->
-        <!--                ctx.scale(scaler, scaler);-->
-        <!--                ctx.strokeStyle = "blue";-->
-
-        <!--                items.forEach(function(item) {-->
-        <!--                    item.Points.forEach(function(point){-->
-        <!--                        ctx.beginPath(); // start a new path-->
-        <!--                        ctx.arc(point[0]*scaler, canvas.height-point[1]*scaler, 5, 0, Math.PI * 2);-->
-        <!--                        ctx.stroke(); // draw the stroke-->
-        <!--                    });-->
-        <!--                });-->
-
-        <!--            });-->
-        <!--        </script>-->
     </div>
     <div class="sidebar_item">
         <div> Takeaway</div>
@@ -103,11 +49,14 @@
                  var items = data.filter(function(item) {
                     return item.Stage === "Takeaway";
                  });
+
             </script>
             <img id="takeaway_img" src="{{ url_for('video', filename='takeaway.jpg') }}">
             <div class="fix_text"></div>
             <button onClick="changeImage('/video/takeaway.jpg', 'takeaway_img', this, data)">Takeaway img</button>
-            <button onClick="changeImage('/video/trail_arm_straight.jpg', 'takeaway_img', this, data)">Trail Arm Straight</button>
+            <button onClick="changeImage('/video/trail_arm_straight.jpg', 'takeaway_img', this, data)">Trail Arm
+                Straight
+            </button>
             <script> colourButtons(items) </script>
         </div>
     </div>
@@ -119,12 +68,17 @@
                  var items = data.filter(function(item) {
                     return item.Stage === "Backswing";
                  });
+
             </script>
             <img id="backswing_img" src="{{ url_for('video', filename='backswing.jpg') }}">
             <div class="fix_text"></div>
             <button onClick="changeImage('/video/backswing.jpg', 'backswing_img')">Backswing img</button>
-            <button onClick="changeImage('/video/elbow_pointing_down.jpg', 'backswing_img', this, data)">Trail Elbow in Right Direction</button>
-            <button onClick="changeImage('/video/left_arm_plane.jpg', 'backswing_img', this, data)">Lead Arm on Shoulder Plane</button>
+            <button onClick="changeImage('/video/elbow_pointing_down.jpg', 'backswing_img', this, data)">Trail Elbow in
+                Right Direction
+            </button>
+            <button onClick="changeImage('/video/left_arm_plane.jpg', 'backswing_img', this, data)">Lead Arm on Shoulder
+                Plane
+            </button>
             <script> colourButtons(items) </script>
         </div>
     </div>
@@ -136,12 +90,16 @@
                  var items = data.filter(function(item) {
                     return item.Stage === "Downswing";
                  });
+
             </script>
             <img id="downswing_img" src="{{ url_for('video', filename='downswing.jpg') }}">
             <div class="fix_text"></div>
             <button onClick="changeImage('/video/downswing.jpg', 'downswing_img')">Takeaway img</button>
-            <button onClick="changeImage('/video/Downswing_knee_angle.jpg', 'downswing_img', this, data)">Knee Flex Downswing</button>
-            <button onClick="changeImage('/video/shoulders_closed.jpg', 'downswing_img', this, data)">Closed Shoulders</button>
+            <button onClick="changeImage('/video/Downswing_knee_angle.jpg', 'downswing_img', this, data)">Knee Flex
+                Downswing
+            </button>
+            <button onClick="changeImage('/video/shoulders_closed.jpg', 'downswing_img', this, data)">Closed Shoulders
+            </button>
             <script> colourButtons(items) </script>
         </div>
     </div>
@@ -157,14 +115,16 @@
                  var items = data.filter(function(item) {
                     return item.Stage === "Followthrough";
                  });
+
             </script>
-            <img id="followthorugh_img" src="{{ url_for('video', filename='followthrough.jpg') }}">    
+            <img id="followthorugh_img" src="{{ url_for('video', filename='followthrough.jpg') }}">
             <div class="fix_text"></div>
             <script> colourButtons(items) </script>
         </div>
     </div>
     <script>
         setColourField(data)
+
     </script>
 </div>
 </body>

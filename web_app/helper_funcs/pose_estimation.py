@@ -69,13 +69,6 @@ class PoseEstimation:
             results.pose_landmarks.landmark[7],  # 14: left ear
             results.pose_landmarks.landmark[0]  # 15: nose
         ]
-        # landmarks_subset = []
-        # landmark_indexs = [15, 16, 13, 14, 11, 12, 23, 24, 25, 26, 27, 28, 30, 32, 7, 0]
-        #
-        # for index in landmark_indexs:
-        #     if type(results.pose_landmarks.landmark[index]) is None:
-        #         print("Mamma Mia")
-
         return normalise_all(landmarks_subset, frame)
 
     def predict_dtl_pose(self, frame):
@@ -101,8 +94,8 @@ class PoseEstimation:
 
         return normalise_all(landmarks_subset, frame)
 
-    # TODO: Get mask of person segmentation and return that
     def segmentation(self, frame):
+        # Not used in implementation but could be useful at some stage. Got from mediapipe docs
         seg_pose = self.mpPose.Pose(enable_segmentation=True)
         frame_small = frame.copy()
         frame_small = cv2.resize(frame_small, (frame_small.shape[1], frame_small.shape[0]))
@@ -121,8 +114,6 @@ class PoseEstimation:
         cv2.waitKey()
 
         return annotated_image
-
-    # TODO: Could change this to be less repetitive (i.e. calculate the pose once)
 
     def get_left_wrist(self, frame):
         res, points, results = self.init_vars(frame)

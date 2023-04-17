@@ -3,9 +3,7 @@ function uploadFiles() {
     var foFile = document.getElementById('fo-upload').files[0];
     var dtlFile = document.getElementById('dtl-upload').files[0];
 
-    /* TODO: Update his to have a check to see if both files are filled */
     handleDownload(foFile, dtlFile)
-
 
     console.log("Files saves to server")
 }

@@ -10,6 +10,7 @@
     <script>
         // Assign data passed by Flask to JS variable
         var data = {{results | tojson }};
+
     </script>
 </head>
 <body>
@@ -17,7 +18,6 @@
 <div class="video_player">
     <video width="480" height="860" controls>
         <source src="{{ url_for('video', filename='FO_analysed.mp4') }}" type="video/mp4">
-        <!-- Delete this and replace it with something more informative to the user-->
         Your browser does not support the video tag.
     </video>
 </div>
@@ -31,6 +31,7 @@
                  var items = data.filter(function(item) {
                     return item.Stage === "Setup";
                  });
+
             </script>
             <img id="setup_img" src="{{ url_for('video', filename='setup.jpg') }}">
             <div class="fix_text"></div>
@@ -49,13 +50,13 @@
                     return item.Stage === "Takeaway";
                  });
 
-
-
             </script>
             <img id="takeaway_img" src="{{ url_for('video', filename='takeaway.jpg') }}">
             <div class="fix_text"></div>
             <button onClick="changeImage('/video/takeaway.jpg', 'takeaway_img', this, data)">Takeaway img</button>
-            <button onClick="changeImage('video/one_piece_movement.jpg', 'takeaway_img', this, data)">One Piece Movement</button>
+            <button onClick="changeImage('video/one_piece_movement.jpg', 'takeaway_img', this, data)">One Piece
+                Movement
+            </button>
             <script> colourButtons(items) </script>
         </div>
     </div>
@@ -67,8 +68,6 @@
                  var items = data.filter(function(item) {
                     return item.Stage === "Backswing";
                  });
-
-
 
             </script>
             <img id="backswing_img" src="{{ url_for('video', filename='backswing.jpg') }}">
@@ -108,13 +107,18 @@
             </script>
             <img id="followthrough_img" src="{{ url_for('video', filename='followthrough.jpg') }}">
             <div class="fix_text"></div>
-            <button onClick="changeImage('/video/followthrough.jpg', 'followthrough_img', this, data)">Follow Through img</button>
-            <button onClick="changeImage('/video/shoulder_over_foot.jpg', 'followthrough_img', this, data)">Head over Lead Leg</button>
+            <button onClick="changeImage('/video/followthrough.jpg', 'followthrough_img', this, data)">Follow Through
+                img
+            </button>
+            <button onClick="changeImage('/video/shoulder_over_foot.jpg', 'followthrough_img', this, data)">Head over
+                Lead Leg
+            </button>
             <script> colourButtons(items) </script>
         </div>
     </div>
     <script>
         setColourField(data)
+
     </script>
 </div>
 </body>

@@ -33,10 +33,6 @@ class FODataRecord:
         if len(self.data["lw"]) > 1:
             dist = math.dist(self.data["lw"][len(self.data["lw"]) - 2], self.data["lw"][len(self.data["lw"]) - 1])
             self.data["acc"].append(dist)
-            # self.data["acc"].append(
-            # self.data["lw"][len(self.data["lw"]) - 2] - self.data["lw"][
-            #     len(self.data["lw"]) - 1] / 0.6)  # formula for acceleration 0.6 is frame rate 60 fps
-            # math.sqrt()
 
 
 class DTLDataRecord:
